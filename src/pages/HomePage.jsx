@@ -17,7 +17,7 @@ export function HomePage() {
     let mounted = true;
     productService.getFeaturedProducts().then((data) => {
       if (mounted) {
-        setFeaturedProducts(data.slice(0, 6));
+        setFeaturedProducts(Array.isArray(data) ? data.slice(0, 6) : []);
         setLoading(false);
       }
     });

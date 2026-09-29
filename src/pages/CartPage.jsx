@@ -11,11 +11,9 @@ export function CartPage() {
   const increaseQuantity = useCartStore((state) => state.increaseQuantity);
   const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
-  const getSubtotal = useCartStore((state) => state.getSubtotal);
-  const getTotalCount = useCartStore((state) => state.getTotalCount());
 
-  const subtotal = getSubtotal();
-  const totalCount = getTotalCount();
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
   const shipping = subtotal > 100 || subtotal === 0 ? 0 : 15;
   const estimatedTax = parseFloat((subtotal * 0.08).toFixed(2));
   const finalTotal = subtotal + shipping + estimatedTax;

@@ -9,7 +9,7 @@ import { CATEGORIES } from '../../data/categories';
 export function Navbar() {
   const navigate = useNavigate();
   const cartItems = useCartStore((state) => state.items);
-  const totalCount = useCartStore((state) => state.getTotalCount());
+  const totalCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
   const { user, isAuthenticated, logout } = useAuthStore();
   const { openCart, openSearch, isMobileMenuOpen, openMobileMenu, closeMobileMenu } = useUIStore();
   

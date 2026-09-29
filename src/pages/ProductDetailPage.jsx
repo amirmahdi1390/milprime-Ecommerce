@@ -36,7 +36,7 @@ export function ProductDetailPage() {
         // Fetch related products in the same category or all products
         const all = await productService.getActiveProducts();
         if (mounted) {
-          const related = all
+          const related = (Array.isArray(all) ? all : [])
             .filter((p) => p.slug !== prod.slug)
             .slice(0, 3);
           setRelatedProducts(related);

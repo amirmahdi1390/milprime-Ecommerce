@@ -8,10 +8,9 @@ import { ArrowLeft, Lock } from 'lucide-react';
 export function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCartStore((state) => state.items);
-  const getSubtotal = useCartStore((state) => state.getSubtotal);
   const [loading, setLoading] = useState(false);
 
-  const subtotal = getSubtotal();
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 100 || subtotal === 0 ? 0 : 15;
   const tax = parseFloat((subtotal * 0.08).toFixed(2));
   const total = subtotal + shipping + tax;

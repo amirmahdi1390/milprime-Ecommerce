@@ -13,14 +13,12 @@ export function CartDrawer() {
   const increaseQuantity = useCartStore((state) => state.increaseQuantity);
   const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
-  const getSubtotal = useCartStore((state) => state.getSubtotal);
-  const getTotalCount = useCartStore((state) => state.getTotalCount());
 
   const [promoCode, setPromoCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(0);
 
-  const subtotal = getSubtotal();
-  const totalCount = getTotalCount();
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
   const finalTotal = Math.max(0, subtotal - discountApplied);
 
   const handleApplyPromo = (e) => {
