@@ -25,6 +25,10 @@ function persistCart(items) {
 export const useCartStore = create((set, get) => ({
   items: getStoredCart(),
 
+  addItem: (product, quantity = 1, priceOverride = null) => {
+    get().addToCart(product, quantity, priceOverride);
+  },
+
   /**
    * Add a product to the cart with optional quantity and pricing
    */

@@ -15,7 +15,9 @@ export function SearchOverlay() {
 
   useEffect(() => {
     if (isSearchOpen) {
-      productService.getActiveProducts().then(setProducts);
+      productService.getActiveProducts().then(setProducts).catch((err) => {
+        console.error('SearchOverlay failed to load products:', err);
+      });
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
       setQuery('');

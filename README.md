@@ -100,8 +100,8 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 
 # Studio Administrator Credentials
-VITE_ADMIN_EMAIL=admin@milprime.shop
-VITE_ADMIN_PASSWORD=your_secure_password
+VITE_ADMIN_EMAIL=your_admin_email
+VITE_ADMIN_PASSWORD=your_admin_password
 ```
 
 > **Note**: Never expose secrets or passwords in client components. The application reads administrative credentials securely via environment variables.

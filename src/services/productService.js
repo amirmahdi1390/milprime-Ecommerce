@@ -1,228 +1,200 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
-import { SEED_PRODUCTS } from '../data/seedProducts';
-
-const LOCAL_PRODUCTS_KEY = 'milprime_local_products';
 
 const isUuid = (str) =>
   typeof str === 'string' &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
 
-function getLocalProducts() {
-  if (typeof window === 'undefined') return SEED_PRODUCTS;
-  try {
-    const stored = localStorage.getItem(LOCAL_PRODUCTS_KEY);
-    if (!stored) {
-      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(SEED_PRODUCTS));
-      return SEED_PRODUCTS;
-    }
-    const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(SEED_PRODUCTS));
-      return SEED_PRODUCTS;
-    }
-    return parsed;
-  } catch (err) {
-    return SEED_PRODUCTS;
+function ensureSupabase() {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('Supabase is not configured or credentials are missing from environment variables.');
   }
-}
-
-function saveLocalProducts(products) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
-  } catch (err) {
-    console.error('Error saving local products:', err);
-  }
+  return supabase;
 }
 
 export const productService = {
   /**
-   * Fetch all active products
+   * Fetch all active products for the storefront catalog
    */
   async getActiveProducts() {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('active', true)
-          .order('created_at', { ascending: false });
+    const client = ensureSupabase();
+    const { data, error } = await client
+      .from('products')
+      .select('*')
+      .eq('active', true)
+      .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        if (data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase query failed, falling back to archive:', err.message);
-      }
+    if (error) {
+      console.error('Supabase getActiveProducts error:', error);
+      throw new Error(`Database error: ${error.message}`);
     }
-    return getLocalProducts().filter((p) => p.active !== false);
+
+    return data || [];
   },
 
   /**
-   * Fetch all products (including inactive, for Admin)
+   * Fetch all products (including inactive items for the Admin Studio)
    */
   async getAllProducts() {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
+    const client = ensureSupabase();
+    const { data, error } = await client
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        if (data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase query failed, falling back to archive:', err.message);
-      }
+    if (error) {
+      console.error('Supabase getAllProducts error:', error);
+      throw new Error(`Database error: ${error.message}`);
     }
-    return getLocalProducts();
+
+    return data || [];
   },
 
   /**
-   * Fetch featured products for homepage
+   * Fetch featured products for the storefront homepage
    */
   async getFeaturedProducts() {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('active', true)
-          .eq('featured', true)
-          .order('created_at', { ascending: false });
+    const client = ensureSupabase();
+    const { data, error } = await client
+      .from('products')
+      .select('*')
+      .eq('active', true)
+      .eq('featured', true)
+      .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        if (data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase query failed for featured products:', err.message);
-      }
+    if (error) {
+      console.error('Supabase getFeaturedProducts error:', error);
+      throw new Error(`Database error: ${error.message}`);
     }
-    return getLocalProducts().filter((p) => p.active !== false && p.featured === true);
+
+    return data || [];
   },
 
   /**
-   * Fetch single product by slug
+   * Fetch single product by unique slug
+   * @param {string} slug 
    */
   async getProductBySlug(slug) {
     if (!slug) return null;
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('slug', slug)
-          .single();
+    const client = ensureSupabase();
 
-        if (error && error.code !== 'PGRST116') throw error;
-        if (data) return data;
-      } catch (err) {
-        console.warn(`Supabase getProductBySlug failed for ${slug}:`, err.message);
-      }
+    const { data, error } = await client
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (error) {
+      console.error(`Supabase getProductBySlug error for "${slug}":`, error);
+      throw new Error(`Database error: ${error.message}`);
     }
-    return getLocalProducts().find((p) => p.slug === slug) || null;
+
+    return data || null;
   },
 
   /**
-   * Create a new product (Admin)
+   * Create a new product in Supabase (Admin)
+   * @param {object} productData 
    */
   async createProduct(productData) {
-    const newProduct = {
-      ...productData,
+    const client = ensureSupabase();
+
+    const payload = {
+      name: productData.name.trim(),
+      slug: productData.slug.trim(),
+      description: productData.description || null,
+      short_description: productData.short_description || null,
+      price: parseFloat(productData.price) || 0,
+      compare_at_price: productData.compare_at_price ? parseFloat(productData.compare_at_price) : null,
+      category: productData.category || 'Accessories',
+      brand: productData.brand || 'Milprime',
+      sku: productData.sku || null,
+      image_url: productData.image_url,
+      images: Array.isArray(productData.images) && productData.images.length > 0
+        ? productData.images
+        : [productData.image_url],
+      featured: Boolean(productData.featured),
+      active: productData.active !== undefined ? Boolean(productData.active) : true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      active: productData.active !== undefined ? productData.active : true,
-      featured: Boolean(productData.featured),
-      price: parseFloat(productData.price) || 0,
-      compare_at_price: productData.compare_at_price ? parseFloat(productData.compare_at_price) : null,
-      images: Array.isArray(productData.images) && productData.images.length > 0 
-        ? productData.images 
-        : [productData.image_url],
     };
 
-    if (isSupabaseConfigured && supabase) {
-      const payload = { ...newProduct };
-      if (!isUuid(payload.id)) {
-        delete payload.id;
-      }
-
-      const { data, error } = await supabase
-        .from('products')
-        .insert([payload])
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(error.message || 'Supabase product creation failed');
-      }
-      return data;
+    if (isUuid(productData.id)) {
+      payload.id = productData.id;
     }
 
-    // Local fallback when Supabase is not configured
-    const localProduct = {
-      ...newProduct,
-      id: newProduct.id || `prod-${Date.now()}`,
-    };
-    const current = getLocalProducts();
-    const updated = [localProduct, ...current];
-    saveLocalProducts(updated);
-    return localProduct;
+    const { data, error } = await client
+      .from('products')
+      .insert([payload])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase createProduct INSERT error:', error);
+      throw new Error(`Database error: ${error.message}`);
+    }
+
+    return data;
   },
 
   /**
-   * Update an existing product (Admin)
+   * Update an existing product in Supabase (Admin)
+   * @param {string} id 
+   * @param {object} productData 
    */
   async updateProduct(id, productData) {
+    const client = ensureSupabase();
+
     const payload = {
-      ...productData,
-      updated_at: new Date().toISOString(),
+      name: productData.name.trim(),
+      slug: productData.slug.trim(),
+      description: productData.description || null,
+      short_description: productData.short_description || null,
       price: parseFloat(productData.price) || 0,
       compare_at_price: productData.compare_at_price ? parseFloat(productData.compare_at_price) : null,
+      category: productData.category,
+      brand: productData.brand || 'Milprime',
+      sku: productData.sku || null,
+      image_url: productData.image_url,
+      images: Array.isArray(productData.images) && productData.images.length > 0
+        ? productData.images
+        : [productData.image_url],
+      featured: Boolean(productData.featured),
+      active: productData.active !== undefined ? Boolean(productData.active) : true,
+      updated_at: new Date().toISOString(),
     };
 
-    if (isSupabaseConfigured && supabase && isUuid(id)) {
-      const { data, error } = await supabase
-        .from('products')
-        .update(payload)
-        .eq('id', id)
-        .select()
-        .single();
+    const { data, error } = await client
+      .from('products')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
 
-      if (error) {
-        throw new Error(error.message || 'Supabase product update failed');
-      }
-      return data;
+    if (error) {
+      console.error(`Supabase updateProduct UPDATE error for ID ${id}:`, error);
+      throw new Error(`Database error: ${error.message}`);
     }
 
-    // Local fallback
-    const current = getLocalProducts();
-    const index = current.findIndex((p) => p.id === id);
-    if (index !== -1) {
-      current[index] = { ...current[index], ...payload };
-      saveLocalProducts(current);
-      return current[index];
-    }
-    return null;
+    return data;
   },
 
   /**
-   * Delete a product (Admin)
+   * Delete a product permanently from Supabase (Admin)
+   * @param {string} id 
    */
   async deleteProduct(id) {
-    if (isSupabaseConfigured && supabase && isUuid(id)) {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
+    const client = ensureSupabase();
 
-      if (error) {
-        throw new Error(error.message || 'Supabase product deletion failed');
-      }
-      return true;
+    const { error } = await client
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error(`Supabase deleteProduct DELETE error for ID ${id}:`, error);
+      throw new Error(`Database error: ${error.message}`);
     }
 
-    // Local fallback
-    const current = getLocalProducts();
-    const filtered = current.filter((p) => p.id !== id);
-    saveLocalProducts(filtered);
     return true;
   },
 };

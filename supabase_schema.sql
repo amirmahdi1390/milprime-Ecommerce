@@ -60,27 +60,53 @@ FOR DELETE
 USING (true);
 
 -- 4. Create storage bucket for product images
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('product-images', 'product-images', true)
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types) 
+VALUES (
+    'product-images', 
+    'product-images', 
+    true, 
+    10485760, 
+    ARRAY['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/svg+xml']
+)
+ON CONFLICT (id) DO UPDATE SET 
+    public = true,
+    file_size_limit = 10485760,
+    allowed_mime_types = ARRAY['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/svg+xml'];
 
 -- Storage policies for product-images bucket
-CREATE POLICY "Public Access to product-images" 
+DROP POLICY IF EXISTS "Public Access to product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow anon upload to product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow anon update in product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow anon delete from product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public read product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public insert product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public update product-images" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public delete product-images" ON storage.objects;
+
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read product-images" 
 ON storage.objects 
 FOR SELECT 
+TO public 
 USING (bucket_id = 'product-images');
 
-CREATE POLICY "Allow anon upload to product-images" 
+CREATE POLICY "Allow public insert product-images" 
 ON storage.objects 
 FOR INSERT 
+TO public 
 WITH CHECK (bucket_id = 'product-images');
 
-CREATE POLICY "Allow anon update in product-images" 
+CREATE POLICY "Allow public update product-images" 
 ON storage.objects 
 FOR UPDATE 
-USING (bucket_id = 'product-images');
+TO public 
+USING (bucket_id = 'product-images')
+WITH CHECK (bucket_id = 'product-images');
 
-CREATE POLICY "Allow anon delete from product-images" 
+CREATE POLICY "Allow public delete product-images" 
 ON storage.objects 
 FOR DELETE 
+TO public 
 USING (bucket_id = 'product-images');
+

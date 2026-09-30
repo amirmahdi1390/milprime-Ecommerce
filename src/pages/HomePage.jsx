@@ -13,6 +13,7 @@ import {
   Feather,
   Gem,
   Layers,
+  AlertTriangle,
 } from 'lucide-react';
 import { productService } from '../services/productService';
 import { ProductCard } from '../features/products/ProductCard';
@@ -30,17 +31,24 @@ export function HomePage() {
   const { addToast } = useUIStore();
   const carouselRef = useRef(null);
 
+  const [error, setError] = useState(null);
+
+  const loadFeatured = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await productService.getFeaturedProducts();
+      setFeaturedProducts(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to load featured products from Supabase:', err);
+      setError(err.message || 'Database connection error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let mounted = true;
-    productService.getFeaturedProducts().then((data) => {
-      if (mounted) {
-        setFeaturedProducts(Array.isArray(data) ? data : []);
-        setLoading(false);
-      }
-    });
-    return () => {
-      mounted = false;
-    };
+    loadFeatured();
   }, []);
 
   const handleNewsletterSubmit = (e) => {
@@ -277,7 +285,18 @@ export function HomePage() {
           ref={carouselRef}
           className="flex gap-6 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory"
         >
-          {loading ? (
+          {error ? (
+            <div className="w-full py-12 px-6 bg-red-50/80 border border-red-200 rounded-2xl text-center space-y-3">
+              <div className="inline-flex p-2.5 bg-red-100 rounded-full text-red-700">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <h3 className="text-sm font-bold text-red-900">Database Connection Error</h3>
+              <p className="text-xs text-red-700 font-mono max-w-md mx-auto">{error}</p>
+              <Button variant="primary" size="sm" onClick={loadFeatured}>
+                Retry Loading
+              </Button>
+            </div>
+          ) : loading ? (
             [1, 2, 3, 4].map((i) => (
               <div key={i} className="min-w-[280px] sm:min-w-[320px] space-y-3 shrink-0">
                 <div className="aspect-square w-full rounded-2xl bg-[#f4f4f5] animate-pulse border border-[#e4e4e7]" />

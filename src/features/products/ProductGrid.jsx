@@ -38,8 +38,8 @@ export function ProductGrid({
 
   return (
     <div className={`grid ${columns} gap-6 sm:gap-8`}>
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, idx) => (
+        <ProductCard key={product.id} product={product} priority={idx < 6} />
       ))}
     </div>
   );

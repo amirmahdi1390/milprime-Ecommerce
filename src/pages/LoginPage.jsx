@@ -44,7 +44,7 @@ export function LoginPage() {
 
       navigate(returnUrl || '/shop');
     } catch (err) {
-      setError('Invalid credentials provided');
+      setError(err.message || 'Invalid credentials provided');
     } finally {
       setLoading(false);
     }

@@ -45,7 +45,7 @@ export function RegisterPage() {
 
       navigate(returnUrl || '/shop');
     } catch (err) {
-      setError('Failed to create account. Please try again.');
+      setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -33,7 +33,20 @@ export function CheckoutPage() {
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const orderNumber = `MIL-${Math.floor(100000 + Math.random() * 900000)}`;
+    const cardDigits = (formData.cardNumber || '').replace(/\D/g, '');
+    const safeCustomer = {
+      fullName: formData.fullName,
+      email: formData.email,
+      address: formData.address,
+      addressCont: formData.addressCont || '',
+      city: formData.city,
+      state: formData.state,
+      postalCode: formData.postalCode,
+      country: formData.country,
+      phone: formData.phone,
+      cardLast4: cardDigits.length >= 4 ? cardDigits.slice(-4) : '••••',
+    };
+
     const orderData = {
       orderNumber,
       date: new Date().toLocaleDateString('en-US', {
@@ -41,7 +54,7 @@ export function CheckoutPage() {
         month: 'long',
         day: 'numeric',
       }),
-      customer: formData,
+      customer: safeCustomer,
       items: [...items],
       subtotal,
       shipping,
@@ -50,6 +63,7 @@ export function CheckoutPage() {
     };
 
     sessionStorage.setItem('milprime_latest_order', JSON.stringify(orderData));
+    useCartStore.getState().clearCart();
 
     setLoading(false);
     navigate('/payment-success');

@@ -3,8 +3,9 @@ import { UploadCloud, CheckCircle2, Loader2, X } from 'lucide-react';
 import { storageService } from '../../services/storageService';
 import { Button } from '../../components/common/Button';
 
-export function ImageUploader({ currentImageUrl, onImageUploaded }) {
+export function ImageUploader({ currentImageUrl, onImageUploaded, productId = 'general' }) {
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [preview, setPreview] = useState(currentImageUrl || '');
   const [customUrl, setCustomUrl] = useState('');
   const [mode, setMode] = useState('upload');
@@ -19,13 +20,12 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
 
     try {
       setUploading(true);
-      const url = await storageService.uploadProductImage(file, 'products');
+      setUploadError('');
+      const url = await storageService.uploadProductImage(file, productId);
       setPreview(url);
       onImageUploaded(url);
     } catch (err) {
-      const objectUrl = URL.createObjectURL(file);
-      setPreview(objectUrl);
-      onImageUploaded(objectUrl);
+      setUploadError(err.message || 'Storage upload failed');
     } finally {
       setUploading(false);
     }
@@ -103,6 +103,16 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
           <Button type="button" size="sm" variant="secondary" onClick={handleApplyUrl}>
             Set URL
           </Button>
+        </div>
+      )}
+
+      {uploadError && (
+        <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-xs text-left">
+          <p className="font-semibold text-[11px] mb-0.5">Storage Notice:</p>
+          <p className="text-[11px] font-mono">{uploadError}</p>
+          <p className="mt-1 text-[10px] text-[#71717a]">
+            You can use the <strong>Direct URL</strong> tab above to provide an image link directly.
+          </p>
         </div>
       )}
 

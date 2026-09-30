@@ -5,7 +5,7 @@ import { ProductGrid } from '../features/products/ProductGrid';
 import { ProductFilters } from '../features/products/ProductFilters';
 import { ProductSort } from '../features/products/ProductSort';
 import { calculatePricing } from '../utils/discount';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, AlertTriangle } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { SEO } from '../components/common/SEO';
 
@@ -16,6 +16,7 @@ export function ShopPage() {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Filter state
   const isSpecial = searchParams.get('special') === 'true';
@@ -26,18 +27,42 @@ export function ShopPage() {
   const [currentSort, setCurrentSort] = useState('featured');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
+  const loadProducts = async () => {
     setLoading(true);
-    productService.getActiveProducts().then((data) => {
-      if (mounted) {
-        setProducts(data);
-        setLoading(false);
+    setError(null);
+    try {
+      const data = await productService.getActiveProducts();
+      const productList = Array.isArray(data) ? data : [];
+      setProducts(productList);
+
+      // Preload initial view images so product cards don't pop in half-loaded
+      const initialImages = productList.slice(0, 6).map((p) => p.image_url).filter(Boolean);
+      if (initialImages.length > 0) {
+        await Promise.race([
+          Promise.all(
+            initialImages.map(
+              (src) =>
+                new Promise((resolve) => {
+                  const img = new Image();
+                  img.src = src;
+                  img.onload = () => resolve();
+                  img.onerror = () => resolve();
+                })
+            )
+          ),
+          new Promise((resolve) => setTimeout(resolve, 600)),
+        ]);
       }
-    });
-    return () => {
-      mounted = false;
-    };
+    } catch (err) {
+      console.error('Failed to load products from database:', err);
+      setError(err.message || 'Database connection error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
   }, []);
 
   const handleCategorySelect = (catSlug) => {
@@ -190,13 +215,28 @@ export function ShopPage() {
             totalCount={filteredAndSortedProducts.length}
           />
 
-          <ProductGrid
-            products={filteredAndSortedProducts}
-            loading={loading}
-            emptyTitle="No products match your criteria"
-            emptyDescription="Try clearing some of your filters or resetting your search term."
-            onResetFilters={handleResetFilters}
-          />
+          {error ? (
+            <div className="p-8 my-6 bg-red-50/80 border border-red-200 rounded-2xl text-center space-y-4">
+              <div className="inline-flex p-3 bg-red-100 rounded-full text-red-700">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div className="max-w-md mx-auto">
+                <h3 className="text-base font-bold text-red-900">Database Connection Error</h3>
+                <p className="text-xs text-red-700 mt-1 font-mono break-words">{error}</p>
+              </div>
+              <Button variant="primary" size="sm" onClick={loadProducts}>
+                Retry Database Connection
+              </Button>
+            </div>
+          ) : (
+            <ProductGrid
+              products={filteredAndSortedProducts}
+              loading={loading}
+              emptyTitle="No products match your criteria"
+              emptyDescription="Try clearing some of your filters or resetting your search term."
+              onResetFilters={handleResetFilters}
+            />
+          )}
         </div>
 
       </div>

@@ -196,6 +196,7 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
 
         <ImageUploader
           currentImageUrl={formData.image_url}
+          productId={product?.id || 'new'}
           onImageUploaded={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
         />
 

@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useState, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Check } from 'lucide-react';
 import { calculatePricing } from '../../utils/discount';
 import { formatCurrency } from '../../utils/currency';
+import { getCategoryPlaceholderImage } from '../../utils/placeholderImages';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { Badge } from '../../components/common/Badge';
 
-export function ProductCard({ product, priority = false }) {
+// Global memory cache of already-loaded image URLs to prevent re-flashing during scroll
+const CACHED_IMAGE_SET = new Set();
+
+function ProductCardComponent({ product, priority = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const addToCart = useCartStore((state) => state.addToCart);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { openCart, addToast } = useUIStore();
-  const [added, setAdded] = React.useState(false);
+  
+  const [added, setAdded] = useState(false);
+  const initialUrl = product?.image_url || '';
+  const [imageSrc, setImageSrc] = useState(initialUrl);
+  const [imageLoaded, setImageLoaded] = useState(() => CACHED_IMAGE_SET.has(initialUrl));
 
   if (!product) return null;
 
@@ -46,20 +54,43 @@ export function ProductCard({ product, priority = false }) {
     }, 1500);
   };
 
+  const handleImageLoad = () => {
+    CACHED_IMAGE_SET.add(imageSrc);
+    setImageLoaded(true);
+  };
+
+  const handleImageError = () => {
+    const fallback = getCategoryPlaceholderImage(product.category);
+    setImageSrc(fallback);
+    CACHED_IMAGE_SET.add(fallback);
+    setImageLoaded(true);
+  };
+
   const imageAlt = `${product.name} — ${product.category || 'Luxury Essential'} by ${product.brand || 'Milprime'}`;
 
   return (
     <article className="group relative flex flex-col text-left">
-      {/* Product Image Frame */}
+      {/* Product Image Frame with fixed aspect ratio to eliminate layout shift */}
       <Link
         to={`/product/${product.slug}`}
         className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#f4f4f5] border border-[#e4e4e7]/60 block"
       >
+        {/* Placeholder skeleton while initial image buffers */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-[#f4f4f5] animate-pulse" />
+        )}
+
         <img
-          src={product.image_url}
+          src={imageSrc}
           alt={imageAlt}
           loading={priority ? 'eager' : 'lazy'}
-          className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          fetchPriority={priority ? 'high' : 'auto'}
+          decoding="async"
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          className={`h-full w-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
         />
 
         {/* Discount Badge */}
@@ -119,3 +150,5 @@ export function ProductCard({ product, priority = false }) {
     </article>
   );
 }
+
+export const ProductCard = memo(ProductCardComponent);

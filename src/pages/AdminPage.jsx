@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Database, RefreshCw, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Plus, Database, RefreshCw, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { productService } from '../services/productService';
-import { isSupabaseConfigured } from '../lib/supabaseClient';
+import { isSupabaseConfigured, checkSupabaseHealth } from '../lib/supabaseClient';
 import { ProductTable } from '../features/admin/ProductTable';
 import { ProductModal } from '../features/admin/ProductModal';
 import { Button } from '../components/common/Button';
@@ -18,6 +18,7 @@ export function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [dbHealth, setDbHealth] = useState({ ok: true, message: 'Checking connection...' });
   const { addToast } = useUIStore();
 
   // Admin login form state
@@ -29,10 +30,18 @@ export function AdminPage() {
   const loadProducts = async () => {
     setLoading(true);
     try {
+      const health = await checkSupabaseHealth();
+      if (health.ok) {
+        setDbHealth({ ok: true, message: 'Supabase Live Connected' });
+      } else {
+        setDbHealth({ ok: false, message: health.error || 'Database error' });
+      }
+
       const data = await productService.getAllProducts();
       setProducts(data);
     } catch (err) {
-      addToast('Failed to load products from database', 'error');
+      setDbHealth({ ok: false, message: err.message || 'Database error' });
+      addToast(`Database error: ${err.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -61,7 +70,7 @@ export function AdminPage() {
       }
       addToast('Administrator authenticated.', 'success');
     } catch (err) {
-      setAuthError('Invalid administrator credentials');
+      setAuthError(err.message || 'Invalid administrator credentials');
     } finally {
       setAuthLoading(false);
     }
@@ -81,14 +90,14 @@ export function AdminPage() {
     try {
       if (editingProduct) {
         await productService.updateProduct(editingProduct.id, productData);
-        addToast(`Updated "${productData.name}"`, 'success');
+        addToast(`Updated "${productData.name}" in Supabase`, 'success');
       } else {
         await productService.createProduct(productData);
-        addToast(`Created product "${productData.name}"`, 'success');
+        addToast(`Created "${productData.name}" in Supabase`, 'success');
       }
       await loadProducts();
     } catch (err) {
-      addToast(err.message || 'Operation failed', 'error');
+      addToast(err.message || 'Database operation failed', 'error');
       throw err;
     }
   };
@@ -96,10 +105,10 @@ export function AdminPage() {
   const handleDeleteProduct = async (id) => {
     try {
       await productService.deleteProduct(id);
-      addToast('Product successfully removed', 'success');
+      addToast('Product permanently deleted from Supabase', 'success');
       await loadProducts();
     } catch (err) {
-      addToast('Failed to delete product', 'error');
+      addToast(`Failed to delete product: ${err.message}`, 'error');
     }
   };
 
@@ -173,21 +182,21 @@ export function AdminPage() {
               Catalog Management
             </span>
             <span
-              className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${
-                isSupabaseConfigured
+              className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full border ${
+                dbHealth.ok
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+                  : 'bg-red-50 text-red-700 border-red-200'
               }`}
             >
               <Database className="h-3 w-3" />
-              {isSupabaseConfigured ? 'Supabase Connected' : 'Local Archive Sync'}
+              {dbHealth.ok ? `Supabase Live Connected (${products.length} items)` : dbHealth.message}
             </span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[#09090b]">
             Product Catalog Studio
           </h1>
           <p className="text-xs text-[#71717a] mt-1">
-            Create, calibrate pricing, manage images, and update live inventory across storefront channels.
+            Create, calibrate pricing, manage images, and update live inventory in Supabase database.
           </p>
         </div>
 

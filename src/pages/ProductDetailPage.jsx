@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Minus, ArrowRight, ShieldCheck, RefreshCw, Truck, Check } from 'lucide-react';
+import { Plus, Minus, ArrowRight, ShieldCheck, RefreshCw, Truck, Check, AlertTriangle } from 'lucide-react';
 import { productService } from '../services/productService';
 import { ProductGallery } from '../features/products/ProductGallery';
 import { ProductReviews } from '../features/products/ProductReviews';
@@ -23,6 +23,7 @@ export function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dbError, setDbError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
@@ -30,34 +31,65 @@ export function ProductDetailPage() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { openCart, addToast } = useUIStore();
 
-  useEffect(() => {
-    let mounted = true;
+  const loadProductData = async () => {
     setLoading(true);
+    setDbError(null);
     setQuantity(1);
 
-    productService.getProductBySlug(slug).then(async (prod) => {
-      if (!mounted) return;
+    try {
+      const prod = await productService.getProductBySlug(slug);
       setProduct(prod);
 
       if (prod) {
-        const all = await productService.getActiveProducts();
-        if (mounted) {
+        try {
+          const all = await productService.getActiveProducts();
           const related = (Array.isArray(all) ? all : [])
             .filter((p) => p.slug !== prod.slug && (p.category === prod.category || true))
             .slice(0, 3);
           setRelatedProducts(related);
+        } catch (e) {
+          console.warn('Could not load related products:', e);
         }
       }
+    } catch (err) {
+      console.error(`Failed to load product "${slug}" from Supabase:`, err);
+      setDbError(err.message || 'Database connection error');
+    } finally {
       setLoading(false);
-    });
+    }
+  };
 
-    return () => {
-      mounted = false;
-    };
+  useEffect(() => {
+    loadProductData();
   }, [slug]);
 
   if (loading) {
     return <LoadingScreen fullScreen={false} />;
+  }
+
+  if (dbError) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <SEO title="Database Error — Milprime" noindex />
+        <div className="p-8 bg-red-50/80 border border-red-200 rounded-2xl space-y-4">
+          <div className="inline-flex p-3 bg-red-100 rounded-full text-red-700">
+            <AlertTriangle className="h-6 w-6" />
+          </div>
+          <h2 className="text-xl font-bold text-red-900">Database Connection Error</h2>
+          <p className="text-xs text-red-700 font-mono break-words">{dbError}</p>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Button variant="primary" size="sm" onClick={loadProductData}>
+              Retry Connection
+            </Button>
+            <Link to="/shop">
+              <Button variant="outline" size="sm">
+                Return to Catalog
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!product) {
@@ -66,7 +98,7 @@ export function ProductDetailPage() {
         <SEO title="Product Archived" noindex />
         <h1 className="text-2xl font-bold text-[#09090b]">Product Not Found</h1>
         <p className="mt-2 text-sm text-[#71717a]">
-          The piece you are looking for has been archived or does not exist.
+          The piece you are looking for has been archived or does not exist in the database.
         </p>
         <div className="mt-6">
           <Link to="/shop">
