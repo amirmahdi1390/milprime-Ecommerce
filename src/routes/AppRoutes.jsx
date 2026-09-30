@@ -9,6 +9,8 @@ import { CheckoutPage } from '../pages/CheckoutPage';
 import { PaymentSuccessPage } from '../pages/PaymentSuccessPage';
 import { AboutPage } from '../pages/AboutPage';
 import { ContactPage } from '../pages/ContactPage';
+import { BlogPage } from '../pages/BlogPage';
+import { BlogArticlePage } from '../pages/BlogArticlePage';
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { AdminPage } from '../pages/AdminPage';
@@ -25,6 +27,8 @@ export function AppRoutes() {
         <Route path="cart" element={<CartPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="contact" element={<ContactPage />} />
+        <Route path="blog" element={<BlogPage />} />
+        <Route path="blog/:slug" element={<BlogArticlePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="admin" element={<AdminPage />} />

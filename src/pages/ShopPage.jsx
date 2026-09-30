@@ -7,6 +7,7 @@ import { ProductSort } from '../features/products/ProductSort';
 import { calculatePricing } from '../utils/discount';
 import { Filter, X } from 'lucide-react';
 import { Button } from '../components/common/Button';
+import { SEO } from '../components/common/SEO';
 
 export function ShopPage() {
   const { category: routeCategory } = useParams();
@@ -17,6 +18,7 @@ export function ShopPage() {
   const [loading, setLoading] = useState(true);
 
   // Filter state
+  const isSpecial = searchParams.get('special') === 'true';
   const selectedCategory = routeCategory || searchParams.get('cat') || 'all';
   const searchQuery = searchParams.get('q') || '';
   const [priceRange, setPriceRange] = useState(600);
@@ -50,8 +52,9 @@ export function ShopPage() {
     setPriceRange(600);
     setInStockOnly(false);
     setCurrentSort('featured');
-    if (searchQuery) {
+    if (searchQuery || isSpecial) {
       searchParams.delete('q');
+      searchParams.delete('special');
       setSearchParams(searchParams);
     }
     navigate('/shop');
@@ -60,6 +63,11 @@ export function ShopPage() {
   // Filter & Sort Logic
   const filteredAndSortedProducts = useMemo(() => {
     let list = [...products];
+
+    // Special products (featured or compare_at_price)
+    if (isSpecial) {
+      list = list.filter((p) => p.featured || (p.compare_at_price && p.compare_at_price > p.price));
+    }
 
     // Category filter
     if (selectedCategory && selectedCategory !== 'all') {
@@ -102,32 +110,43 @@ export function ShopPage() {
       if (currentSort === 'newest') {
         return new Date(b.created_at || 0) - new Date(a.created_at || 0);
       }
-      // 'featured'
       return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
     });
 
     return list;
-  }, [products, selectedCategory, searchQuery, priceRange, inStockOnly, currentSort]);
+  }, [products, selectedCategory, searchQuery, priceRange, inStockOnly, currentSort, isSpecial]);
 
   const activeFiltersCount =
     (selectedCategory !== 'all' ? 1 : 0) +
     (searchQuery ? 1 : 0) +
+    (isSpecial ? 1 : 0) +
     (priceRange < 600 ? 1 : 0) +
     (inStockOnly ? 1 : 0);
 
+  const pageTitle = isSpecial
+    ? 'Special & Archival Products'
+    : selectedCategory && selectedCategory !== 'all'
+    ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`
+    : 'All Products';
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-left">
+      <SEO
+        title={`${pageTitle} — Milprime Storefront`}
+        description={`Explore the ${pageTitle.toLowerCase()} collection at Milprime. Architectural timepieces, full-grain carryalls, and minimalist apparel.`}
+        url={selectedCategory && selectedCategory !== 'all' ? `/shop/${selectedCategory}` : '/shop'}
+      />
       
       {/* Page Title & Breadcrumb Header */}
       <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#09090b]">
-          {selectedCategory && selectedCategory !== 'all'
-            ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`
-            : 'All Products'}
+          {pageTitle}
         </h1>
         <p className="mt-2 text-sm text-[#71717a]">
           {searchQuery
             ? `Search results for "${searchQuery}"`
+            : isSpecial
+            ? 'Curated archival specials and limited-allocation studio pieces.'
             : 'Explore our complete catalog of precision-crafted essentials.'}
         </p>
       </div>
@@ -195,7 +214,7 @@ export function ShopPage() {
                 <span className="text-base font-semibold">Filter Catalog</span>
                 <button
                   onClick={() => setIsMobileFilterOpen(false)}
-                  className="p-1 rounded-full text-[#71717a] hover:bg-[#f4f4f5]"
+                  className="p-1 rounded-full text-[#71717a] hover:bg-[#f4f4f5] cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>

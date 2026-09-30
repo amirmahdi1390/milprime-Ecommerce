@@ -1,18 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Database, Sparkles, RefreshCw, Layers } from 'lucide-react';
+import { Plus, Database, RefreshCw, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 import { productService } from '../services/productService';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 import { ProductTable } from '../features/admin/ProductTable';
 import { ProductModal } from '../features/admin/ProductModal';
 import { Button } from '../components/common/Button';
+import { Input } from '../components/common/Input';
+import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
+import { SEO } from '../components/common/SEO';
 
 export function AdminPage() {
+  const { user, isAuthenticated, login } = useAuthStore();
+  const isAdmin = isAuthenticated && user?.role === 'admin';
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const { addToast } = useUIStore();
+
+  // Admin login form state
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   const loadProducts = async () => {
     setLoading(true);
@@ -20,15 +32,40 @@ export function AdminPage() {
       const data = await productService.getAllProducts();
       setProducts(data);
     } catch (err) {
-      addToast('Failed to load products', 'error');
+      addToast('Failed to load products from database', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    if (isAdmin) {
+      loadProducts();
+    }
+  }, [isAdmin]);
+
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    if (!adminEmail.trim() || !adminPassword) {
+      setAuthError('Please enter your administrator credentials');
+      return;
+    }
+
+    try {
+      setAuthLoading(true);
+      setAuthError('');
+      const loggedInUser = await login(adminEmail.trim(), adminPassword);
+      if (loggedInUser?.role !== 'admin') {
+        setAuthError('Access restricted to studio administrators');
+        return;
+      }
+      addToast('Administrator authenticated.', 'success');
+    } catch (err) {
+      setAuthError('Invalid administrator credentials');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
@@ -66,8 +103,67 @@ export function AdminPage() {
     }
   };
 
+  if (!isAdmin) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 text-left">
+        <SEO title="Studio Administration — Milprime" url="/admin" noindex={true} />
+        
+        <div className="w-full max-w-md space-y-6 bg-white p-8 sm:p-10 rounded-2xl border border-[#e4e4e7] shadow-sm">
+          <div className="text-center space-y-2">
+            <div className="mx-auto h-12 w-12 rounded-full bg-[#f4f4f5] flex items-center justify-center text-[#09090b] mb-3">
+              <Lock className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-[#09090b]">
+              Studio Administration
+            </h2>
+            <p className="text-xs text-[#71717a]">
+              Please authenticate to access product inventory and catalog management.
+            </p>
+          </div>
+
+          {authError && (
+            <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+              {authError}
+            </div>
+          )}
+
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            <Input
+              label="Email Address"
+              type="email"
+              placeholder="Enter your email"
+              value={adminEmail}
+              onChange={(e) => setAdminEmail(e.target.value)}
+              required
+            />
+
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              required
+            />
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={authLoading}
+              className="w-full font-semibold mt-2"
+            >
+              Sign In to Studio <ArrowRight className="h-4 w-4 ml-1.5" />
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 text-left">
+      <SEO title="Admin Catalog Studio — Milprime" url="/admin" noindex={true} />
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-[#e4e4e7] mb-8">
@@ -76,11 +172,13 @@ export function AdminPage() {
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-black text-white">
               Catalog Management
             </span>
-            <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${
-              isSupabaseConfigured
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : 'bg-zinc-100 text-zinc-600 border-zinc-200'
-            }`}>
+            <span
+              className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${
+                isSupabaseConfigured
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+              }`}
+            >
               <Database className="h-3 w-3" />
               {isSupabaseConfigured ? 'Supabase Connected' : 'Local Archive Sync'}
             </span>

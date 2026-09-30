@@ -1,14 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Check } from 'lucide-react';
 import { calculatePricing } from '../../utils/discount';
 import { formatCurrency } from '../../utils/currency';
 import { useCartStore } from '../../store/cartStore';
+import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { Badge } from '../../components/common/Badge';
 
 export function ProductCard({ product, priority = false }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const addToCart = useCartStore((state) => state.addToCart);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { openCart, addToast } = useUIStore();
   const [added, setAdded] = React.useState(false);
 
@@ -20,11 +24,21 @@ export function ProductCard({ product, priority = false }) {
     e.preventDefault();
     e.stopPropagation();
 
+    if (!isAuthenticated) {
+      addToast('Please sign in to add pieces to your shopping bag.', 'info');
+      navigate('/login', {
+        state: {
+          returnUrl: `${location.pathname}${location.search}`,
+          pendingProduct: product,
+          pendingQty: 1,
+        },
+      });
+      return;
+    }
+
     addToCart(product, 1, finalPrice);
     setAdded(true);
-    addToast(`Added "${product.name}" to cart`, 'success');
-    
-    // Automatically open cart drawer for immediate confirmation feedback
+    addToast(`Added "${product.name}" to bag`, 'success');
     openCart();
 
     setTimeout(() => {
@@ -32,8 +46,10 @@ export function ProductCard({ product, priority = false }) {
     }, 1500);
   };
 
+  const imageAlt = `${product.name} — ${product.category || 'Luxury Essential'} by ${product.brand || 'Milprime'}`;
+
   return (
-    <div className="group relative flex flex-col text-left">
+    <article className="group relative flex flex-col text-left">
       {/* Product Image Frame */}
       <Link
         to={`/product/${product.slug}`}
@@ -41,7 +57,7 @@ export function ProductCard({ product, priority = false }) {
       >
         <img
           src={product.image_url}
-          alt={product.name}
+          alt={imageAlt}
           loading={priority ? 'eager' : 'lazy'}
           className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
         />
@@ -58,7 +74,7 @@ export function ProductCard({ product, priority = false }) {
         {/* Quick Add Button Overlay */}
         <button
           onClick={handleQuickAdd}
-          aria-label={`Add ${product.name} to cart`}
+          aria-label={`Add ${product.name} to shopping bag`}
           className="absolute bottom-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#09090b] shadow-md border border-[#e4e4e7] opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
         >
           {added ? (
@@ -100,6 +116,6 @@ export function ProductCard({ product, priority = false }) {
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

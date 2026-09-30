@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
-import { Lock, CreditCard, Shield, Zap } from 'lucide-react';
+import { Lock, CreditCard, Shield } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { CardBrandBadge, detectCardBrand } from './PaymentIcons';
+import { CardBrandBadge, detectCardBrand, SupportedPaymentMethods } from './PaymentIcons';
+import {
+  isValidLuhn,
+  isValidExpiry,
+  isValidCvv,
+  isValidCardholderName,
+  isValidEmail,
+  isValidPostalCode,
+  isValidPhone,
+} from '../../utils/validation';
 
-export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
+export function CheckoutForm({ onSubmit, loading }) {
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
@@ -30,14 +39,12 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
     }
   };
 
-  // Format Card Number (XXXX XXXX XXXX XXXX)
   const handleCardNumberChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 19);
     const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
     handleChange('cardNumber', formatted);
   };
 
-  // Format Expiry (MM/YY)
   const handleExpiryChange = (e) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
     let formatted = raw;
@@ -47,7 +54,6 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
     handleChange('cardExpiry', formatted);
   };
 
-  // Format CVV
   const handleCvvChange = (e) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
     handleChange('cardCvv', raw);
@@ -55,29 +61,38 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+
+    if (!isValidEmail(formData.email)) {
       newErrors.email = 'Please provide a valid email address';
     }
-    if (!formData.fullName.trim()) {
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 2) {
       newErrors.fullName = 'Full name is required';
     }
-    if (!formData.address.trim()) {
+    if (!formData.address.trim() || formData.address.trim().length < 3) {
       newErrors.address = 'Street address is required';
     }
     if (!formData.city.trim()) {
       newErrors.city = 'City is required';
     }
-    if (!formData.postalCode.trim()) {
-      newErrors.postalCode = 'Postal code is required';
+    if (!isValidPostalCode(formData.postalCode)) {
+      newErrors.postalCode = 'Please enter a valid postal code';
     }
-    if (formData.cardNumber.replace(/\s/g, '').length < 15) {
-      newErrors.cardNumber = 'Please enter a valid 16-digit card number';
+    if (!isValidPhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
     }
-    if (!formData.cardExpiry || formData.cardExpiry.length < 5) {
-      newErrors.cardExpiry = 'Enter MM/YY';
+
+    const cleanCard = formData.cardNumber.replace(/\s/g, '');
+    if (!cleanCard || cleanCard.length < 13 || !isValidLuhn(cleanCard)) {
+      newErrors.cardNumber = 'Please enter a valid card number';
     }
-    if (!formData.cardCvv || formData.cardCvv.length < 3) {
-      newErrors.cardCvv = 'Enter CVV';
+    if (!isValidExpiry(formData.cardExpiry)) {
+      newErrors.cardExpiry = 'Invalid or expired date (MM/YY)';
+    }
+    if (!isValidCvv(formData.cardCvv)) {
+      newErrors.cardCvv = 'Enter valid 3 or 4 digit CVV';
+    }
+    if (!isValidCardholderName(formData.cardholderName)) {
+      newErrors.cardholderName = 'Enter full cardholder name (first and last)';
     }
 
     setErrors(newErrors);
@@ -87,7 +102,23 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    onSubmit(formData);
+
+    // Send customer data without persisting card credentials
+    const submissionData = {
+      email: formData.email,
+      fullName: formData.fullName,
+      address: formData.address,
+      addressCont: formData.addressCont,
+      postalCode: formData.postalCode,
+      city: formData.city,
+      state: formData.state,
+      country: formData.country,
+      phone: formData.phone,
+      cardBrand: detectCardBrand(formData.cardNumber),
+      cardLast4: formData.cardNumber.replace(/\s/g, '').slice(-4),
+    };
+
+    onSubmit(submissionData);
   };
 
   const cardBrand = detectCardBrand(formData.cardNumber);
@@ -95,41 +126,13 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8 text-left">
       
-      {/* Express One-Click Link Button */}
-      <div className="space-y-3">
-        <button
-          type="button"
-          onClick={() => {
-            handleChange('email', 'patron@milprime.com');
-            handleChange('fullName', 'Julian Vance');
-            handleChange('address', '742 Evergreen Terrace');
-            handleChange('city', 'New York');
-            handleChange('postalCode', '10001');
-            handleChange('cardNumber', '4242 4242 4242 4242');
-            handleChange('cardExpiry', '12/28');
-            handleChange('cardCvv', '888');
-          }}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#00d66f] hover:bg-[#00c264] text-black font-semibold text-sm transition-all shadow-sm cursor-pointer"
-        >
-          <Zap className="h-4 w-4 fill-black" />
-          <span>Pay securely with <strong className="font-extrabold tracking-tight">link</strong></span>
-        </button>
-
-        <div className="relative flex items-center justify-center">
-          <div className="border-t border-[#e4e4e7] w-full" />
-          <span className="bg-white px-3 text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-wider absolute">
-            OR PAY WITH CARD
-          </span>
-        </div>
-      </div>
-
       {/* Contact Section */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-[#09090b]">Contact Information</h3>
+        <h2 className="text-sm font-semibold text-[#09090b]">Contact Information</h2>
         <Input
           label="Email Address"
           type="email"
-          placeholder="your@email.com"
+          placeholder="Enter your email"
           value={formData.email}
           onChange={(e) => handleChange('email', e.target.value)}
           error={errors.email}
@@ -139,11 +142,11 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
 
       {/* Shipping Address Section */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-[#09090b]">Shipping Address</h3>
+        <h2 className="text-sm font-semibold text-[#09090b]">Shipping Address</h2>
         
         <Input
           label="Full Name"
-          placeholder="First and last name"
+          placeholder="Enter your full name"
           value={formData.fullName}
           onChange={(e) => handleChange('fullName', e.target.value)}
           error={errors.fullName}
@@ -152,7 +155,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
 
         <Input
           label="Street Address"
-          placeholder="123 Minimalist Blvd"
+          placeholder="Street address"
           value={formData.address}
           onChange={(e) => handleChange('address', e.target.value)}
           error={errors.address}
@@ -161,7 +164,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
 
         <Input
           label="Apartment, suite, unit (optional)"
-          placeholder="Apt 4B"
+          placeholder="Apt, Suite, Unit"
           value={formData.addressCont}
           onChange={(e) => handleChange('addressCont', e.target.value)}
         />
@@ -169,7 +172,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Postal Code"
-            placeholder="10001"
+            placeholder="Postal code"
             value={formData.postalCode}
             onChange={(e) => handleChange('postalCode', e.target.value)}
             error={errors.postalCode}
@@ -177,7 +180,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
           />
           <Input
             label="City"
-            placeholder="New York"
+            placeholder="City"
             value={formData.city}
             onChange={(e) => handleChange('city', e.target.value)}
             error={errors.city}
@@ -188,7 +191,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="State / Province"
-            placeholder="NY"
+            placeholder="State / Province"
             value={formData.state}
             onChange={(e) => handleChange('state', e.target.value)}
           />
@@ -214,26 +217,29 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
         <Input
           label="Phone Number"
           type="tel"
-          placeholder="+1 (555) 000-0000"
+          placeholder="Phone number"
           value={formData.phone}
           onChange={(e) => handleChange('phone', e.target.value)}
+          error={errors.phone}
         />
         <p className="text-[11px] text-[#a1a1aa] -mt-2">
-          In case our courier needs to reach you regarding parcel delivery.
+          Used solely for courier delivery notifications.
         </p>
       </div>
 
       {/* Payment Information Section */}
       <div className="space-y-4 pt-2 border-t border-[#e4e4e7]">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[#09090b]">Payment Details</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-semibold text-[#09090b]">Payment Details</h2>
+            <SupportedPaymentMethods />
+          </div>
           <div className="flex items-center gap-1.5 text-xs text-[#71717a]">
             <Lock className="h-3.5 w-3.5 text-emerald-600" />
             <span>256-Bit SSL Encrypted</span>
           </div>
         </div>
 
-        {/* Card Number Input with Dynamic Card Brand Indicator */}
         <div className="relative">
           <Input
             label="Card Number"
@@ -260,7 +266,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
           />
           <Input
             label="Security Code"
-            placeholder="CVC / CVV"
+            placeholder="CVV"
             value={formData.cardCvv}
             onChange={handleCvvChange}
             error={errors.cardCvv}
@@ -270,13 +276,14 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
 
         <Input
           label="Cardholder Name"
-          placeholder="Name as it appears on card"
+          placeholder="Full name as shown on card"
           value={formData.cardholderName}
           onChange={(e) => handleChange('cardholderName', e.target.value)}
+          error={errors.cardholderName}
+          required
         />
       </div>
 
-      {/* Pay Now Button */}
       <Button
         type="submit"
         variant="primary"
@@ -284,10 +291,9 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
         loading={loading}
         className="w-full text-base font-semibold h-12 shadow-sm"
       >
-        {loading ? 'Authorizing Payment...' : `Pay now`}
+        {loading ? 'Authorizing Payment...' : 'Pay now'}
       </Button>
 
-      {/* Security assurances */}
       <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-[11px] text-[#71717a]">
         <span className="flex items-center gap-1">
           <Shield className="h-3.5 w-3.5 text-emerald-600" />
@@ -296,7 +302,7 @@ export function CheckoutForm({ onSubmit, loading, totalAmount = 0 }) {
         <span>•</span>
         <span>Zero Fraud Liability</span>
         <span>•</span>
-        <span>Processed via Stripe</span>
+        <span>Verified Checkout</span>
       </div>
 
     </form>

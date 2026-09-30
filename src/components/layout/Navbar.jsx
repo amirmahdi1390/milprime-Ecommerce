@@ -4,7 +4,6 @@ import { Search, ShoppingBag, User, Menu, X, ShieldCheck, LogOut, ChevronDown } 
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
-import { CATEGORIES } from '../../data/categories';
 
 export function Navbar() {
   const navigate = useNavigate();
@@ -20,8 +19,18 @@ export function Navbar() {
     setIsUserMenuOpen(false);
   };
 
+  const navLinks = [
+    { label: 'Special Products', to: '/shop?special=true' },
+    { label: 'Watches', to: '/shop/watches' },
+    { label: 'Shop', to: '/shop' },
+    { label: 'Home', to: '/' },
+    { label: 'About', to: '/about' },
+    { label: 'Blog', to: '/blog' },
+    { label: 'Contact', to: '/contact' },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#e4e4e7] bg-white/85 backdrop-blur-md transition-all">
+    <header className="sticky top-0 z-40 w-full border-b border-[#e4e4e7] bg-white/90 backdrop-blur-md transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           
@@ -31,7 +40,7 @@ export function Navbar() {
               type="button"
               onClick={openMobileMenu}
               aria-label="Open navigation menu"
-              className="p-2 -ml-2 rounded-full text-[#71717a] hover:text-[#09090b] hover:bg-[#f4f4f5] lg:hidden transition-colors"
+              className="p-2 -ml-2 rounded-full text-[#71717a] hover:text-[#09090b] hover:bg-[#f4f4f5] lg:hidden transition-colors cursor-pointer"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -45,51 +54,21 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6">
-            <NavLink
-              to="/shop"
-              end
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors whitespace-nowrap ${
-                  isActive ? 'text-[#09090b] font-semibold' : 'text-[#71717a] hover:text-[#09090b]'
-                }`
-              }
-            >
-              All products
-            </NavLink>
-            {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6">
+            {navLinks.map((item) => (
               <NavLink
-                key={cat.id}
-                to={`/shop/${cat.slug}`}
+                key={item.label}
+                to={item.to}
+                end={item.to === '/' || item.to === '/shop'}
                 className={({ isActive }) =>
-                  `text-sm font-medium transition-colors whitespace-nowrap ${
+                  `text-xs xl:text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive ? 'text-[#09090b] font-semibold' : 'text-[#71717a] hover:text-[#09090b]'
                   }`
                 }
               >
-                {cat.name}
+                {item.label}
               </NavLink>
             ))}
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors whitespace-nowrap ${
-                  isActive ? 'text-[#09090b] font-semibold' : 'text-[#71717a] hover:text-[#09090b]'
-                }`
-              }
-            >
-              About
-            </NavLink>
-            <NavLink
-              to="/contact"
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors whitespace-nowrap ${
-                  isActive ? 'text-[#09090b] font-semibold' : 'text-[#71717a] hover:text-[#09090b]'
-                }`
-              }
-            >
-              Contact
-            </NavLink>
           </nav>
 
           {/* Right Action Icons: Search, Account, Bag */}
@@ -110,12 +89,12 @@ export function Navbar() {
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   aria-label="User account"
-                  className="flex items-center gap-1.5 p-1.5 sm:px-2.5 rounded-full hover:bg-[#f4f4f5] transition-colors border border-transparent hover:border-[#e4e4e7]"
+                  className="flex items-center gap-1.5 p-1.5 sm:px-2.5 rounded-full hover:bg-[#f4f4f5] transition-colors border border-transparent hover:border-[#e4e4e7] cursor-pointer"
                 >
                   <img
                     src={user?.avatarUrl}
-                    alt={user?.name}
-                    className="h-7 w-7 rounded-full object-cover"
+                    alt={user?.name || 'Patron Avatar'}
+                    className="h-7 w-7 rounded-full object-cover border border-[#e4e4e7]"
                   />
                   <span className="hidden md:inline text-xs font-medium text-[#09090b] max-w-[100px] truncate">
                     {user?.name}
@@ -142,17 +121,19 @@ export function Navbar() {
                     <p className="text-xs font-semibold text-[#09090b] truncate">{user?.name}</p>
                     <p className="text-[11px] text-[#71717a] truncate">{user?.email}</p>
                   </div>
-                  <Link
-                    to="/admin"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-[#09090b] hover:bg-[#f4f4f5] transition-colors"
-                  >
-                    <ShieldCheck className="h-4 w-4 text-[#71717a]" />
-                    Admin Catalog
-                  </Link>
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-[#09090b] hover:bg-[#f4f4f5] transition-colors"
+                    >
+                      <ShieldCheck className="h-4 w-4 text-[#71717a]" />
+                      Admin Catalog
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign out
@@ -169,7 +150,7 @@ export function Navbar() {
             >
               <ShoppingBag className="h-5 w-5 stroke-[1.75]" />
               {totalCount > 0 && (
-                <span className="absolute 1 top-0.5 right-0.5 h-4 min-w-4 px-1 rounded-full bg-black text-white text-[10px] font-bold flex items-center justify-center leading-none animate-in zoom-in duration-150">
+                <span className="absolute top-0.5 right-0.5 h-4 min-w-4 px-1 rounded-full bg-black text-white text-[10px] font-bold flex items-center justify-center leading-none animate-in zoom-in duration-150">
                   {totalCount}
                 </span>
               )}
@@ -192,59 +173,32 @@ export function Navbar() {
                 <span className="text-xl font-bold tracking-tight">Milprime</span>
                 <button
                   onClick={closeMobileMenu}
-                  className="p-1 rounded-full text-[#71717a] hover:bg-[#f4f4f5]"
+                  className="p-1 rounded-full text-[#71717a] hover:bg-[#f4f4f5] cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="mt-6 flex flex-col gap-4 text-left">
-                <Link
-                  to="/"
-                  onClick={closeMobileMenu}
-                  className="text-base font-medium text-[#09090b] hover:text-black py-1"
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/shop"
-                  onClick={closeMobileMenu}
-                  className="text-base font-medium text-[#09090b] hover:text-black py-1"
-                >
-                  All Products
-                </Link>
-                {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+              <div className="mt-6 flex flex-col gap-3 text-left">
+                {navLinks.map((item) => (
                   <Link
-                    key={cat.id}
-                    to={`/shop/${cat.slug}`}
+                    key={item.label}
+                    to={item.to}
                     onClick={closeMobileMenu}
-                    className="text-base text-[#71717a] hover:text-[#09090b] py-1"
+                    className="text-sm font-medium text-[#09090b] hover:text-black py-1.5 border-b border-[#f4f4f5]"
                   >
-                    {cat.name}
+                    {item.label}
                   </Link>
                 ))}
-                <div className="my-2 border-t border-[#e4e4e7]" />
-                <Link
-                  to="/about"
-                  onClick={closeMobileMenu}
-                  className="text-base text-[#71717a] hover:text-[#09090b] py-1"
-                >
-                  About Milprime
-                </Link>
-                <Link
-                  to="/contact"
-                  onClick={closeMobileMenu}
-                  className="text-base text-[#71717a] hover:text-[#09090b] py-1"
-                >
-                  Contact Concierge
-                </Link>
-                <Link
-                  to="/admin"
-                  onClick={closeMobileMenu}
-                  className="text-base text-[#71717a] hover:text-[#09090b] py-1"
-                >
-                  Admin Catalog
-                </Link>
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={closeMobileMenu}
+                    className="text-sm text-[#71717a] hover:text-[#09090b] py-1.5 flex items-center gap-2"
+                  >
+                    <ShieldCheck className="h-4 w-4" /> Admin Catalog
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -252,10 +206,10 @@ export function Navbar() {
               {isAuthenticated ? (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <img src={user?.avatarUrl} className="h-7 w-7 rounded-full object-cover" />
+                    <img src={user?.avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover border border-[#e4e4e7]" />
                     <span className="text-sm font-medium">{user?.name}</span>
                   </div>
-                  <button onClick={handleLogout} className="text-xs text-red-600 font-medium">
+                  <button onClick={handleLogout} className="text-xs text-red-600 font-medium cursor-pointer">
                     Sign out
                   </button>
                 </div>

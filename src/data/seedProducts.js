@@ -1,4 +1,107 @@
 export const SEED_PRODUCTS = [
+  // 5 Reference Products
+  {
+    id: "prod-ref-001",
+    name: "Aurelia Chronograph",
+    slug: "aurelia-chronograph",
+    category: "Watches",
+    brand: "Milprime",
+    sku: "MIL-W001",
+    price: 189.00,
+    compare_at_price: 219.00,
+    short_description: "A refined everyday chronograph with a sophisticated finish.",
+    description: "A refined chronograph designed with a clean architectural dial, premium finishing and a timeless silhouette.",
+    image_url: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    featured: true,
+    active: true,
+    created_at: "2026-01-10T10:00:00Z",
+    updated_at: "2026-01-10T10:00:00Z"
+  },
+  {
+    id: "prod-ref-002",
+    name: "Noir Leather Weekender",
+    slug: "noir-leather-weekender",
+    category: "Bags",
+    brand: "Milprime",
+    sku: "MIL-B001",
+    price: 149.00,
+    compare_at_price: null,
+    short_description: "A premium leather weekender for modern travel.",
+    description: "A spacious leather weekender crafted for short journeys, business travel and refined everyday use.",
+    image_url: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1200&q=80"
+    ],
+    featured: true,
+    active: true,
+    created_at: "2026-01-11T10:00:00Z",
+    updated_at: "2026-01-11T10:00:00Z"
+  },
+  {
+    id: "prod-ref-003",
+    name: "Essential Overshirt",
+    slug: "essential-overshirt",
+    category: "Clothing",
+    brand: "Milprime",
+    sku: "MIL-C001",
+    price: 89.00,
+    compare_at_price: 109.00,
+    short_description: "A clean, versatile overshirt designed for everyday wear.",
+    description: "A versatile contemporary overshirt with a structured silhouette and understated detailing.",
+    image_url: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=1200&q=80"
+    ],
+    featured: false,
+    active: true,
+    created_at: "2026-01-12T10:00:00Z",
+    updated_at: "2026-01-12T10:00:00Z"
+  },
+  {
+    id: "prod-ref-004",
+    name: "Sculptural Table Lamp",
+    slug: "sculptural-table-lamp",
+    category: "Home",
+    brand: "Milprime",
+    sku: "MIL-H001",
+    price: 119.00,
+    compare_at_price: null,
+    short_description: "A sculptural lamp for refined contemporary interiors.",
+    description: "A minimalist table lamp combining sculptural form with a warm ambient presence.",
+    image_url: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=80"
+    ],
+    featured: true,
+    active: true,
+    created_at: "2026-01-13T10:00:00Z",
+    updated_at: "2026-01-13T10:00:00Z"
+  },
+  {
+    id: "prod-ref-005",
+    name: "Minimal Leather Wallet",
+    slug: "minimal-leather-wallet",
+    category: "Accessories",
+    brand: "Milprime",
+    sku: "MIL-A001",
+    price: 59.00,
+    compare_at_price: 69.00,
+    short_description: "A minimal leather wallet with a refined profile.",
+    description: "A compact leather wallet designed around essential storage and a clean profile.",
+    image_url: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=1200&q=80"
+    ],
+    featured: false,
+    active: true,
+    created_at: "2026-01-14T10:00:00Z",
+    updated_at: "2026-01-14T10:00:00Z"
+  },
+
+  // 12 Catalog Products
   {
     id: "prod-001",
     name: "Ocean Bloom Carryall",
@@ -9,7 +112,7 @@ export const SEED_PRODUCTS = [
     price: 320.00,
     compare_at_price: 380.00,
     short_description: "A wave-blue structured silhouette paired with sun-washed handles that feel straight out of a Mediterranean summer.",
-    description: "Ocean Bloom captures the spirit of coastal escapes — a wave-blue silhouette paired with sun-washed handles that feel straight out of a Mediterranean summer. Structured yet soft, it's the kind of bag that moves effortlessly from city streets to seaside aperitifs. Solid in the air, subtle in the details. Crafted with premium Italian pebbled leather and lined in organic cotton twill.",
+    description: "Ocean Bloom captures the spirit of coastal escapes — a wave-blue silhouette paired with sun-washed handles that feel straight out of a Mediterranean summer. Structured yet soft, it moves effortlessly from city streets to seaside aperitifs. Crafted with premium Italian pebbled leather and lined in organic cotton twill.",
     image_url: "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_3-CcEwpnzNztUrPTdfCTDe06CKyd8o61.jpg",
     images: [
       "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_3-CcEwpnzNztUrPTdfCTDe06CKyd8o61.jpg",
@@ -33,8 +136,7 @@ export const SEED_PRODUCTS = [
     description: "An everyday companion crafted from vegetable-tanned harness leather that patinas gracefully with age. Features an interior zip pocket, reinforced double-layer base, and hand-finished burnished edges for enduring luxury.",
     image_url: "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_0-OPBBr1ShXHAVNYJwN4k5KIcu6mMEG3.jpg",
     images: [
-      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_0-OPBBr1ShXHAVNYJwN4k5KIcu6mMEG3.jpg",
-      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bag_for_ecommerce_website_1%20%281%29-BHMR9OOrV50zy2Wg0XeiKWDIKdVTNB.jpg"
+      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_0-OPBBr1ShXHAVNYJwN4k5KIcu6mMEG3.jpg"
     ],
     featured: true,
     active: true,
@@ -74,8 +176,7 @@ export const SEED_PRODUCTS = [
     description: "Constructed from custom-developed 100% organic cotton loopback French terry, the Cloud Nine Hoodie balances weight, warmth, and effortless drape. Features double-layered hood without drawstrings for an uncompromisingly clean aesthetic.",
     image_url: "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_1-R3UTsUqqrEpZSAKXsUYe9IRDvqqZfs.jpg",
     images: [
-      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_1-R3UTsUqqrEpZSAKXsUYe9IRDvqqZfs.jpg",
-      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_2-c1sZkXsTaSwqTEHUTMQS5DhKyyMmCD.jpg"
+      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_1-R3UTsUqqrEpZSAKXsUYe9IRDvqqZfs.jpg"
     ],
     featured: true,
     active: true,
@@ -95,8 +196,7 @@ export const SEED_PRODUCTS = [
     description: "The quintessential minimalist t-shirt. Woven from extra-long staple Supima cotton fibers that yield incredible softness, natural luster, and extraordinary pill resistance through countless wash cycles.",
     image_url: "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%281%29-JHMZe8xJ28tll9bGQINl0AXFfYByFc.jpg",
     images: [
-      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%281%29-JHMZe8xJ28tll9bGQINl0AXFfYByFc.jpg",
-      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%282%29-HkjMG2zUKHAAGxXOyGohGbkvy9stMJ.jpg"
+      "https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%281%29-JHMZe8xJ28tll9bGQINl0AXFfYByFc.jpg"
     ],
     featured: false,
     active: true,
@@ -116,8 +216,7 @@ export const SEED_PRODUCTS = [
     description: "Engineered for clarity and discipline, the Aero Chronometer marries a surgical-grade 316L titanium case with an anti-reflective double-domed sapphire crystal. Water-resistant to 10 ATM, with an interchangeable horween leather strap.",
     image_url: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80",
     images: [
-      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1000&q=80"
+      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80"
     ],
     featured: true,
     active: true,

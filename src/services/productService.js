@@ -3,6 +3,10 @@ import { SEED_PRODUCTS } from '../data/seedProducts';
 
 const LOCAL_PRODUCTS_KEY = 'milprime_local_products';
 
+const isUuid = (str) =>
+  typeof str === 'string' &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+
 function getLocalProducts() {
   if (typeof window === 'undefined') return SEED_PRODUCTS;
   try {
@@ -11,9 +15,13 @@ function getLocalProducts() {
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(SEED_PRODUCTS));
       return SEED_PRODUCTS;
     }
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(SEED_PRODUCTS));
+      return SEED_PRODUCTS;
+    }
+    return parsed;
   } catch (err) {
-    console.error('Error reading local products fallback:', err);
     return SEED_PRODUCTS;
   }
 }
@@ -23,7 +31,7 @@ function saveLocalProducts(products) {
   try {
     localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
   } catch (err) {
-    console.error('Error saving local products fallback:', err);
+    console.error('Error saving local products:', err);
   }
 }
 
@@ -43,7 +51,7 @@ export const productService = {
         if (error) throw error;
         if (data && data.length > 0) return data;
       } catch (err) {
-        console.warn('Supabase query failed, falling back to local dataset:', err.message);
+        console.warn('Supabase query failed, falling back to archive:', err.message);
       }
     }
     return getLocalProducts().filter((p) => p.active !== false);
@@ -63,7 +71,7 @@ export const productService = {
         if (error) throw error;
         if (data && data.length > 0) return data;
       } catch (err) {
-        console.warn('Supabase query failed, falling back to local dataset:', err.message);
+        console.warn('Supabase query failed, falling back to archive:', err.message);
       }
     }
     return getLocalProducts();
@@ -119,7 +127,6 @@ export const productService = {
   async createProduct(productData) {
     const newProduct = {
       ...productData,
-      id: productData.id || `prod-${Date.now()}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       active: productData.active !== undefined ? productData.active : true,
@@ -132,24 +139,32 @@ export const productService = {
     };
 
     if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .insert([newProduct])
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
-      } catch (err) {
-        console.warn('Supabase createProduct failed, saving to local store:', err.message);
+      const payload = { ...newProduct };
+      if (!isUuid(payload.id)) {
+        delete payload.id;
       }
+
+      const { data, error } = await supabase
+        .from('products')
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Supabase product creation failed');
+      }
+      return data;
     }
 
+    // Local fallback when Supabase is not configured
+    const localProduct = {
+      ...newProduct,
+      id: newProduct.id || `prod-${Date.now()}`,
+    };
     const current = getLocalProducts();
-    const updated = [newProduct, ...current];
+    const updated = [localProduct, ...current];
     saveLocalProducts(updated);
-    return newProduct;
+    return localProduct;
   },
 
   /**
@@ -163,22 +178,21 @@ export const productService = {
       compare_at_price: productData.compare_at_price ? parseFloat(productData.compare_at_price) : null,
     };
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .update(payload)
-          .eq('id', id)
-          .select()
-          .single();
+    if (isSupabaseConfigured && supabase && isUuid(id)) {
+      const { data, error } = await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
 
-        if (error) throw error;
-        return data;
-      } catch (err) {
-        console.warn('Supabase updateProduct failed, updating local store:', err.message);
+      if (error) {
+        throw new Error(error.message || 'Supabase product update failed');
       }
+      return data;
     }
 
+    // Local fallback
     const current = getLocalProducts();
     const index = current.findIndex((p) => p.id === id);
     if (index !== -1) {
@@ -193,19 +207,19 @@ export const productService = {
    * Delete a product (Admin)
    */
   async deleteProduct(id) {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { error } = await supabase
-          .from('products')
-          .delete()
-          .eq('id', id);
+    if (isSupabaseConfigured && supabase && isUuid(id)) {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
 
-        if (error) throw error;
-      } catch (err) {
-        console.warn('Supabase deleteProduct failed, deleting from local store:', err.message);
+      if (error) {
+        throw new Error(error.message || 'Supabase product deletion failed');
       }
+      return true;
     }
 
+    // Local fallback
     const current = getLocalProducts();
     const filtered = current.filter((p) => p.id !== id);
     saveLocalProducts(filtered);

@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useCartStore } from '../store/cartStore';
 import { useUIStore } from '../store/uiStore';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
 import { ArrowRight } from 'lucide-react';
+import { SEO } from '../components/common/SEO';
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const register = useAuthStore((state) => state.register);
+  const addItem = useCartStore((state) => state.addItem);
   const { addToast } = useUIStore();
 
   const [name, setName] = useState('');
@@ -16,6 +20,10 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const returnUrl = location.state?.returnUrl;
+  const pendingProduct = location.state?.pendingProduct;
+  const pendingQty = location.state?.pendingQty || 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +37,13 @@ export function RegisterPage() {
       setError('');
       await register(name.trim(), email.trim(), password);
       addToast(`Account established for ${name}. Welcome to Milprime.`, 'success');
-      navigate('/shop');
+
+      if (pendingProduct) {
+        addItem(pendingProduct, pendingQty);
+        addToast(`${pendingProduct.name} added to your bag.`, 'success');
+      }
+
+      navigate(returnUrl || '/shop');
     } catch (err) {
       setError('Failed to create account. Please try again.');
     } finally {
@@ -39,6 +53,12 @@ export function RegisterPage() {
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 text-left">
+      <SEO
+        title="Create Account — Milprime"
+        description="Establish your Milprime account for priority ordering, archival access, and bespoke curation."
+        url="/register"
+      />
+
       <div className="w-full max-w-md space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-[#e4e4e7] shadow-sm">
         
         {/* Header */}
@@ -63,7 +83,7 @@ export function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Full Name"
-            placeholder="Julian Vance"
+            placeholder="e.g. Julian Vance"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -72,7 +92,7 @@ export function RegisterPage() {
           <Input
             label="Email Address"
             type="email"
-            placeholder="julian@example.com"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -81,7 +101,7 @@ export function RegisterPage() {
           <Input
             label="Password"
             type="password"
-            placeholder="Minimum 8 characters"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -100,7 +120,11 @@ export function RegisterPage() {
 
         <div className="pt-2 text-center text-xs text-[#71717a]">
           Already have a Milprime profile?{' '}
-          <Link to="/login" className="font-semibold text-[#09090b] underline">
+          <Link
+            to="/login"
+            state={location.state}
+            className="font-semibold text-[#09090b] underline"
+          >
             Sign in
           </Link>
         </div>

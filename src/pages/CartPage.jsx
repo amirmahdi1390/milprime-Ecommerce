@@ -2,8 +2,10 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../utils/currency';
 import { Button } from '../components/common/Button';
+import { SEO } from '../components/common/SEO';
 
 export function CartPage() {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ export function CartPage() {
   const increaseQuantity = useCartStore((state) => state.increaseQuantity);
   const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -18,9 +21,22 @@ export function CartPage() {
   const estimatedTax = parseFloat((subtotal * 0.08).toFixed(2));
   const finalTotal = subtotal + shipping + estimatedTax;
 
+  const handleProceedToCheckout = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { returnUrl: '/checkout' } });
+    } else {
+      navigate('/checkout');
+    }
+  };
+
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <SEO
+          title="Shopping Bag — Milprime"
+          description="Review your Milprime selections before checkout."
+          url="/cart"
+        />
         <div className="max-w-md mx-auto space-y-4">
           <div className="h-16 w-16 mx-auto rounded-full bg-[#f4f4f5] flex items-center justify-center text-[#71717a]">
             <ShoppingBag className="h-8 w-8 stroke-[1.5]" />
@@ -43,6 +59,12 @@ export function CartPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-left">
+      <SEO
+        title="Shopping Bag — Milprime"
+        description="Review your curated selections, calculate shipping, and proceed to secure checkout."
+        url="/cart"
+      />
+
       <div className="flex items-center justify-between pb-6 border-b border-[#e4e4e7] mb-8">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[#09090b]">
@@ -98,39 +120,34 @@ export function CartPage() {
 
                 {/* Quantity Stepper & Price & Remove */}
                 <div className="flex items-center justify-between w-full sm:w-auto gap-6">
-                  {/* Stepper */}
                   <div className="flex items-center rounded-full border border-[#e4e4e7] p-1 bg-white">
                     <button
                       onClick={() => decreaseQuantity(item.id)}
+                      className="p-1 hover:text-black text-[#71717a] transition-colors cursor-pointer"
                       aria-label="Decrease quantity"
-                      className="h-7 w-7 rounded-full flex items-center justify-center text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#09090b] transition-colors cursor-pointer"
                     >
-                      <Minus className="h-3 w-3" />
+                      <Minus className="h-3.5 w-3.5" />
                     </button>
                     <span className="w-8 text-center text-xs font-semibold text-[#09090b]">
                       {item.quantity}
                     </span>
                     <button
                       onClick={() => increaseQuantity(item.id)}
+                      className="p-1 hover:text-black text-[#71717a] transition-colors cursor-pointer"
                       aria-label="Increase quantity"
-                      className="h-7 w-7 rounded-full flex items-center justify-center text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#09090b] transition-colors cursor-pointer"
                     >
-                      <Plus className="h-3 w-3" />
+                      <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
-                  {/* Subtotal */}
-                  <div className="text-right min-w-[80px]">
-                    <span className="text-base font-bold text-[#09090b]">
-                      {formatCurrency(item.subtotal || item.price * item.quantity)}
-                    </span>
-                  </div>
+                  <span className="text-sm font-bold text-[#09090b] min-w-18 text-right">
+                    {formatCurrency(item.price * item.quantity)}
+                  </span>
 
-                  {/* Remove Button */}
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    aria-label="Remove item from bag"
-                    className="p-2 text-[#a1a1aa] hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                    className="p-2 text-[#a1a1aa] hover:text-red-600 transition-colors cursor-pointer"
+                    aria-label="Remove item"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -179,7 +196,7 @@ export function CartPage() {
               variant="primary"
               size="lg"
               className="w-full text-sm font-semibold h-12 shadow-sm"
-              onClick={() => navigate('/checkout')}
+              onClick={handleProceedToCheckout}
             >
               Proceed to Checkout <ArrowRight className="h-4 w-4 ml-1.5" />
             </Button>

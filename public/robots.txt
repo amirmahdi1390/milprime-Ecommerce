@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /payment-success
+
+Sitemap: https://milprime.shop/sitemap.xml

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Plus, Minus, ArrowRight, ShieldCheck, RefreshCw, Truck, Check, Heart, Share2 } from 'lucide-react';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Plus, Minus, ArrowRight, ShieldCheck, RefreshCw, Truck, Check } from 'lucide-react';
 import { productService } from '../services/productService';
 import { ProductGallery } from '../features/products/ProductGallery';
 import { ProductReviews } from '../features/products/ProductReviews';
@@ -8,12 +8,18 @@ import { ProductCard } from '../features/products/ProductCard';
 import { calculatePricing } from '../utils/discount';
 import { formatCurrency } from '../utils/currency';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { SEO } from '../components/common/SEO';
+import { LoadingScreen } from '../components/common/LoadingScreen';
 
 export function ProductDetailPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +27,7 @@ export function ProductDetailPage() {
   const [added, setAdded] = useState(false);
 
   const addToCart = useCartStore((state) => state.addToCart);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { openCart, addToast } = useUIStore();
 
   useEffect(() => {
@@ -33,11 +40,10 @@ export function ProductDetailPage() {
       setProduct(prod);
 
       if (prod) {
-        // Fetch related products in the same category or all products
         const all = await productService.getActiveProducts();
         if (mounted) {
           const related = (Array.isArray(all) ? all : [])
-            .filter((p) => p.slug !== prod.slug)
+            .filter((p) => p.slug !== prod.slug && (p.category === prod.category || true))
             .slice(0, 3);
           setRelatedProducts(related);
         }
@@ -51,25 +57,14 @@ export function ProductDetailPage() {
   }, [slug]);
 
   if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate-pulse text-left space-y-8">
-        <div className="h-4 w-48 bg-[#f4f4f5] rounded" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="aspect-square bg-[#f4f4f5] rounded-2xl" />
-          <div className="space-y-4">
-            <div className="h-8 w-3/4 bg-[#f4f4f5] rounded" />
-            <div className="h-6 w-1/4 bg-[#f4f4f5] rounded" />
-            <div className="h-24 w-full bg-[#f4f4f5] rounded" />
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen fullScreen={false} />;
   }
 
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <h2 className="text-2xl font-bold text-[#09090b]">Product Not Found</h2>
+        <SEO title="Product Archived" noindex />
+        <h1 className="text-2xl font-bold text-[#09090b]">Product Not Found</h1>
         <p className="mt-2 text-sm text-[#71717a]">
           The piece you are looking for has been archived or does not exist.
         </p>
@@ -85,9 +80,21 @@ export function ProductDetailPage() {
   const { hasDiscount, discountAmount, finalPrice, originalPrice } = calculatePricing(product);
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      addToast('Please sign in to add pieces to your shopping bag.', 'info');
+      navigate('/login', {
+        state: {
+          returnUrl: location.pathname,
+          pendingProduct: product,
+          pendingQty: quantity,
+        },
+      });
+      return;
+    }
+
     addToCart(product, quantity, finalPrice);
     setAdded(true);
-    addToast(`Added ${quantity} × "${product.name}" to cart`, 'success');
+    addToast(`Added ${quantity} × "${product.name}" to bag`, 'success');
     openCart();
 
     setTimeout(() => {
@@ -95,11 +102,42 @@ export function ProductDetailPage() {
     }, 1500);
   };
 
+  const productSchema = {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    name: product.name,
+    image: product.image_url,
+    description: product.short_description || product.description,
+    sku: product.sku || `MIL-${product.slug}`,
+    brand: {
+      '@type': 'Brand',
+      name: product.brand || 'Milprime',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `https://milprime.shop/product/${product.slug}`,
+      priceCurrency: 'USD',
+      price: finalPrice,
+      availability: product.active !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+  };
+
+  const images = Array.isArray(product.images) && product.images.length > 0 
+    ? product.images 
+    : [product.image_url];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-left">
-      
+      <SEO
+        title={product.name}
+        description={product.short_description || product.description}
+        canonical={`/product/${product.slug}`}
+        image={product.image_url}
+        schema={productSchema}
+      />
+
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs text-[#71717a] mb-8">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[#71717a] mb-8">
         <Link to="/" className="hover:text-[#09090b] transition-colors">
           Home
         </Link>
@@ -124,15 +162,15 @@ export function ProductDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
         
         {/* Gallery */}
-        <div>
+        <section aria-label="Product Images">
           <ProductGallery
-            images={product.images && product.images.length > 0 ? product.images : [product.image_url]}
+            images={images}
             name={product.name}
           />
-        </div>
+        </section>
 
         {/* Product Information */}
-        <div className="space-y-6">
+        <section aria-label="Product Details" className="space-y-6">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-[#71717a]">
@@ -189,6 +227,7 @@ export function ProductDetailPage() {
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   className="h-8 w-8 rounded-full flex items-center justify-center text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#09090b] transition-colors cursor-pointer"
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
@@ -199,6 +238,7 @@ export function ProductDetailPage() {
                   type="button"
                   onClick={() => setQuantity((q) => q + 1)}
                   className="h-8 w-8 rounded-full flex items-center justify-center text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#09090b] transition-colors cursor-pointer"
+                  aria-label="Increase quantity"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
@@ -226,27 +266,27 @@ export function ProductDetailPage() {
           <div className="grid grid-cols-3 gap-3 pt-6 border-t border-[#e4e4e7] text-center">
             <div className="p-3 rounded-xl bg-[#fafafa] border border-[#e4e4e7]/60 space-y-1">
               <Truck className="h-4 w-4 mx-auto text-[#09090b]" />
-              <p className="text-[11px] font-semibold text-[#09090b]">Free Shipping</p>
+              <p className="text-[11px] font-semibold text-[#09090b]">Complimentary Shipping</p>
               <p className="text-[10px] text-[#71717a]">Orders over $100</p>
             </div>
             <div className="p-3 rounded-xl bg-[#fafafa] border border-[#e4e4e7]/60 space-y-1">
               <RefreshCw className="h-4 w-4 mx-auto text-[#09090b]" />
-              <p className="text-[11px] font-semibold text-[#09090b]">Easy Returns</p>
+              <p className="text-[11px] font-semibold text-[#09090b]">Guaranteed Returns</p>
               <p className="text-[10px] text-[#71717a]">30-day window</p>
             </div>
             <div className="p-3 rounded-xl bg-[#fafafa] border border-[#e4e4e7]/60 space-y-1">
               <ShieldCheck className="h-4 w-4 mx-auto text-[#09090b]" />
-              <p className="text-[11px] font-semibold text-[#09090b]">Authenticity</p>
-              <p className="text-[10px] text-[#71717a]">Studio verified</p>
+              <p className="text-[11px] font-semibold text-[#09090b]">Studio Inspected</p>
+              <p className="text-[10px] text-[#71717a]">Lifetime integrity</p>
             </div>
           </div>
 
-        </div>
+        </section>
 
       </div>
 
       {/* Made to be worn section */}
-      <div className="mt-16 sm:mt-24 pt-12 border-t border-[#e4e4e7]">
+      <section aria-label="Brand Guarantees" className="mt-16 sm:mt-24 pt-12 border-t border-[#e4e4e7]">
         <h2 className="text-xl sm:text-2xl font-bold text-center text-[#09090b] mb-8">
           Made to be worn.
         </h2>
@@ -270,14 +310,14 @@ export function ProductDetailPage() {
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Customer Reviews Section */}
       <ProductReviews productName={product.name} />
 
       {/* Related Products Recommendation Grid */}
       {relatedProducts.length > 0 && (
-        <div className="mt-16 sm:mt-24 pt-12 border-t border-[#e4e4e7]">
+        <section aria-label="Related Products" className="mt-16 sm:mt-24 pt-12 border-t border-[#e4e4e7]">
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-[#09090b]">
@@ -297,7 +337,7 @@ export function ProductDetailPage() {
               <ProductCard key={rel.id} product={rel} />
             ))}
           </div>
-        </div>
+        </section>
       )}
 
     </div>

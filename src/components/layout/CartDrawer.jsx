@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
+import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { formatCurrency } from '../../utils/currency';
 import { Button } from '../common/Button';
@@ -13,6 +14,7 @@ export function CartDrawer() {
   const increaseQuantity = useCartStore((state) => state.increaseQuantity);
   const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const [promoCode, setPromoCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(0);
@@ -36,7 +38,11 @@ export function CartDrawer() {
 
   const handleProceedToCheckout = () => {
     closeCart();
-    navigate('/checkout');
+    if (!isAuthenticated) {
+      navigate('/login', { state: { returnUrl: '/checkout' } });
+    } else {
+      navigate('/checkout');
+    }
   };
 
   if (!isCartOpen) return null;

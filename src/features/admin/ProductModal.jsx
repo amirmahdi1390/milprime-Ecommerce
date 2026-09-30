@@ -4,11 +4,19 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { ImageUploader } from './ImageUploader';
 import { CATEGORIES } from '../../data/categories';
+import { getCategoryPlaceholderImage } from '../../utils/placeholderImages';
+
+function generateSlug(text) {
+  return (text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export function ProductModal({ isOpen, onClose, product, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     description: '',
     short_description: '',
     price: '',
@@ -28,7 +36,6 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
     if (product) {
       setFormData({
         name: product.name || '',
-        slug: product.slug || '',
         description: product.description || '',
         short_description: product.short_description || '',
         price: product.price ? String(product.price) : '',
@@ -43,7 +50,6 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
     } else {
       setFormData({
         name: '',
-        slug: '',
         description: '',
         short_description: '',
         price: '',
@@ -51,7 +57,7 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
         category: 'Accessories',
         brand: 'Milprime Studio',
         sku: `MIL-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-        image_url: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80',
+        image_url: '',
         featured: false,
         active: true,
       });
@@ -59,31 +65,23 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
     setError('');
   }, [product, isOpen]);
 
-  const handleNameChange = (e) => {
-    const name = e.target.value;
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-
-    setFormData((prev) => ({
-      ...prev,
-      name,
-      slug: product ? prev.slug : slug,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.price || !formData.image_url) {
-      setError('Please provide product name, price, and an image');
+    if (!formData.name.trim() || !formData.price) {
+      setError('Please provide product name and price');
       return;
     }
+
+    const finalImageUrl = formData.image_url.trim() || getCategoryPlaceholderImage(formData.category);
+    const finalSlug = product?.slug ? product.slug : generateSlug(formData.name);
 
     try {
       setSaving(true);
       await onSave({
         ...formData,
+        slug: finalSlug,
+        image_url: finalImageUrl,
+        images: [finalImageUrl],
         price: parseFloat(formData.price),
         compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
       });
@@ -109,19 +107,12 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
           <Input
             label="Product Name *"
-            placeholder="e.g. Aero Chronometer"
+            placeholder="e.g. Aurelia Chronograph"
             value={formData.name}
-            onChange={handleNameChange}
-            required
-          />
-          <Input
-            label="Slug (URL identifier) *"
-            placeholder="aero-chronometer"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
         </div>
@@ -203,13 +194,11 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
           />
         </div>
 
-        {/* Supabase Storage Image Upload */}
         <ImageUploader
           currentImageUrl={formData.image_url}
           onImageUploaded={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
         />
 
-        {/* Checkboxes: Featured & Active */}
         <div className="flex items-center gap-6 pt-2">
           <label className="flex items-center gap-2 text-sm text-[#09090b] cursor-pointer">
             <input
@@ -232,7 +221,6 @@ export function ProductModal({ isOpen, onClose, product, onSave }) {
           </label>
         </div>
 
-        {/* Modal Actions */}
         <div className="flex justify-end gap-3 pt-4 border-t border-[#e4e4e7]">
           <Button type="button" variant="outline" size="md" onClick={onClose}>
             Cancel

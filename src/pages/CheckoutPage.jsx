@@ -1,14 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import { CheckoutForm } from '../features/checkout/CheckoutForm';
 import { OrderSummary } from '../features/checkout/OrderSummary';
 import { ArrowLeft, Lock } from 'lucide-react';
+import { SEO } from '../components/common/SEO';
 
 export function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCartStore((state) => state.items);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { returnUrl: '/checkout' }, replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 100 || subtotal === 0 ? 0 : 15;
@@ -18,10 +31,8 @@ export function CheckoutPage() {
   const handleCheckoutSubmit = async (formData) => {
     setLoading(true);
 
-    // Realistic processing state (1.5s delay)
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Generate simulated order confirmation details
     const orderNumber = `MIL-${Math.floor(100000 + Math.random() * 900000)}`;
     const orderData = {
       orderNumber,
@@ -47,6 +58,7 @@ export function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4">
+        <SEO title="Checkout — Milprime" description="Complete your acquisition at Milprime." url="/checkout" />
         <h2 className="text-2xl font-bold text-[#09090b]">Your Cart is Empty</h2>
         <p className="text-sm text-[#71717a]">
           Please add items to your cart before proceeding to checkout.
@@ -63,6 +75,11 @@ export function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-white text-left">
+      <SEO
+        title="Secure Checkout — Milprime"
+        description="Encrypted acquisition portal for Milprime patrons. Worldwide insured transit."
+        url="/checkout"
+      />
       
       {/* Checkout Minimal Header */}
       <header className="border-b border-[#e4e4e7] py-4 bg-white">
@@ -78,7 +95,7 @@ export function CheckoutPage() {
       </header>
 
       {/* Main 2-Column Checkout Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           
           {/* Left Column: Form */}
@@ -103,7 +120,7 @@ export function CheckoutPage() {
           </div>
 
         </div>
-      </div>
+      </main>
 
     </div>
   );

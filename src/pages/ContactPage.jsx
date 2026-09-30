@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Clock, CheckCircle2 } from 'lucide-react';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
 import { useUIStore } from '../store/uiStore';
+import { SEO } from '../components/common/SEO';
 
 export function ContactPage() {
   const [formData, setFormData] = useState({
@@ -34,7 +35,6 @@ export function ContactPage() {
     if (!validate()) return;
 
     setSubmitting(true);
-    // Simulated delivery delay
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     setSubmitting(false);
@@ -44,6 +44,11 @@ export function ContactPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-left">
+      <SEO
+        title="Contact Concierge & Studio — Milprime"
+        description="Connect with the Milprime concierge team for sizing inquiries, private appointments, or order tracking."
+        url="/contact"
+      />
       
       {/* Title */}
       <div className="max-w-2xl mb-12">
@@ -81,7 +86,7 @@ export function ContactPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-[#09090b]">Digital Concierge</h3>
-                <p className="text-xs text-[#71717a] mt-0.5">concierge@milprime.com</p>
+                <p className="text-xs text-[#71717a] mt-0.5">concierge@milprime.shop</p>
                 <p className="text-[11px] text-[#a1a1aa] mt-0.5">Guaranteed response within 12 hours</p>
               </div>
             </div>
@@ -115,7 +120,7 @@ export function ContactPage() {
               Press & Wholesale Enquiries
             </h4>
             <p className="text-xs text-[#71717a] leading-relaxed">
-              For showroom appointments, press releases, or retail distribution inquiries, please email press@milprime.com.
+              For showroom appointments, press releases, or retail distribution inquiries, please email press@milprime.shop.
             </p>
           </div>
         </div>
@@ -154,7 +159,7 @@ export function ContactPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Full Name *"
-                    placeholder="Marcus Aurelius"
+                    placeholder="e.g. Julian Vance"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     error={errors.name}
@@ -163,7 +168,7 @@ export function ContactPage() {
                   <Input
                     label="Email Address *"
                     type="email"
-                    placeholder="marcus@example.com"
+                    placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     error={errors.email}

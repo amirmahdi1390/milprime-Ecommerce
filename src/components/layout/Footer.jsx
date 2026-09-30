@@ -92,6 +92,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/blog" className="text-sm text-[#71717a] hover:text-[#09090b] transition-colors">
+                  Journal & Editorial
+                </Link>
+              </li>
+              <li>
                 <Link to="/contact" className="text-sm text-[#71717a] hover:text-[#09090b] transition-colors">
                   Contact Concierge
                 </Link>

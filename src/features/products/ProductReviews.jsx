@@ -143,7 +143,7 @@ export function ProductReviews({ productName }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Your Name"
-                  placeholder="e.g. Marcus Aurelius"
+                  placeholder="e.g. Julian Vance"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -151,7 +151,7 @@ export function ProductReviews({ productName }) {
                 <Input
                   label="Email (Kept Private)"
                   type="email"
-                  placeholder="marcus@example.com"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />

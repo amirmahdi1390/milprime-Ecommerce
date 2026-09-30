@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { ArrowRight, Compass } from 'lucide-react';
+import { SEO } from '../components/common/SEO';
 
 export function NotFoundPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-24 sm:py-32 text-center space-y-6">
+      <SEO title="Page Not Found (404) — Milprime" url="/404" noindex={true} />
       <div className="h-16 w-16 mx-auto rounded-full bg-[#f4f4f5] flex items-center justify-center text-[#71717a]">
         <Compass className="h-8 w-8 stroke-[1.5]" />
       </div>

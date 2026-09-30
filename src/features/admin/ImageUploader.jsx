@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { UploadCloud, CheckCircle2, Image as ImageIcon, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { UploadCloud, CheckCircle2, Loader2, X } from 'lucide-react';
 import { storageService } from '../../services/storageService';
 import { Button } from '../../components/common/Button';
 
@@ -7,7 +7,11 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentImageUrl || '');
   const [customUrl, setCustomUrl] = useState('');
-  const [mode, setMode] = useState('upload'); // 'upload' | 'url'
+  const [mode, setMode] = useState('upload');
+
+  useEffect(() => {
+    setPreview(currentImageUrl || '');
+  }, [currentImageUrl]);
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -19,8 +23,6 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
       setPreview(url);
       onImageUploaded(url);
     } catch (err) {
-      console.error('Upload failed:', err);
-      // Fallback preview
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       onImageUploaded(objectUrl);
@@ -32,9 +34,15 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
   const handleApplyUrl = (e) => {
     e.preventDefault();
     if (!customUrl.trim()) return;
-    setPreview(customUrl.trim());
-    onImageUploaded(customUrl.trim());
+    const url = customUrl.trim();
+    setPreview(url);
+    onImageUploaded(url);
     setCustomUrl('');
+  };
+
+  const handleRemoveImage = () => {
+    setPreview('');
+    onImageUploaded('');
   };
 
   return (
@@ -47,15 +55,15 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
           <button
             type="button"
             onClick={() => setMode('upload')}
-            className={`cursor-pointer ${mode === 'upload' ? 'text-[#09090b] font-semibold underline' : 'text-[#71717a]'}`}
+            className={`cursor-pointer transition-colors ${mode === 'upload' ? 'text-[#09090b] font-semibold underline' : 'text-[#71717a] hover:text-[#09090b]'}`}
           >
             Upload File
           </button>
-          <span>•</span>
+          <span className="text-[#d4d4d8]">•</span>
           <button
             type="button"
             onClick={() => setMode('url')}
-            className={`cursor-pointer ${mode === 'url' ? 'text-[#09090b] font-semibold underline' : 'text-[#71717a]'}`}
+            className={`cursor-pointer transition-colors ${mode === 'url' ? 'text-[#09090b] font-semibold underline' : 'text-[#71717a] hover:text-[#09090b]'}`}
           >
             Direct URL
           </button>
@@ -98,13 +106,12 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
         </div>
       )}
 
-      {/* Preview Thumbnail */}
       {preview && (
         <div className="flex items-center gap-3 p-2 bg-[#f4f4f5] rounded-xl border border-[#e4e4e7]">
           <img
             src={preview}
             alt="Product Preview"
-            className="h-12 w-12 rounded-lg object-cover bg-white"
+            className="h-12 w-12 rounded-lg object-cover bg-white border border-[#e4e4e7]"
           />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-[#09090b] flex items-center gap-1">
@@ -113,6 +120,14 @@ export function ImageUploader({ currentImageUrl, onImageUploaded }) {
             </p>
             <p className="text-[10px] text-[#71717a] truncate">{preview}</p>
           </div>
+          <button
+            type="button"
+            onClick={handleRemoveImage}
+            className="p-1.5 text-[#71717a] hover:text-red-600 hover:bg-white rounded-lg transition-colors cursor-pointer"
+            title="Remove image"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
     </div>

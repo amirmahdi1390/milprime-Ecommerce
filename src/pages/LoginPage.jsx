@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useCartStore } from '../store/cartStore';
 import { useUIStore } from '../store/uiStore';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
-import { Lock, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { SEO } from '../components/common/SEO';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((state) => state.login);
+  const addItem = useCartStore((state) => state.addItem);
   const { addToast } = useUIStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const returnUrl = location.state?.returnUrl;
+  const pendingProduct = location.state?.pendingProduct;
+  const pendingQty = location.state?.pendingQty || 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +36,13 @@ export function LoginPage() {
       setError('');
       await login(email, password);
       addToast('Welcome back to Milprime.', 'success');
-      navigate('/shop');
+
+      if (pendingProduct) {
+        addItem(pendingProduct, pendingQty);
+        addToast(`${pendingProduct.name} added to your bag.`, 'success');
+      }
+
+      navigate(returnUrl || '/shop');
     } catch (err) {
       setError('Invalid credentials provided');
     } finally {
@@ -38,6 +52,12 @@ export function LoginPage() {
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 text-left">
+      <SEO
+        title="Sign In — Milprime"
+        description="Sign in to your Milprime account to access curated collections, orders, and private archives."
+        url="/login"
+      />
+
       <div className="w-full max-w-md space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-[#e4e4e7] shadow-sm">
         
         {/* Header */}
@@ -63,7 +83,7 @@ export function LoginPage() {
           <Input
             label="Email Address"
             type="email"
-            placeholder="patron@milprime.com"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -84,7 +104,7 @@ export function LoginPage() {
             </div>
             <Input
               type="password"
-              placeholder="••••••••••••"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -104,7 +124,11 @@ export function LoginPage() {
 
         <div className="pt-2 text-center text-xs text-[#71717a]">
           New patron to Milprime?{' '}
-          <Link to="/register" className="font-semibold text-[#09090b] underline">
+          <Link
+            to="/register"
+            state={location.state}
+            className="font-semibold text-[#09090b] underline"
+          >
             Create an account
           </Link>
         </div>
