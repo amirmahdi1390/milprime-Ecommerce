@@ -42,12 +42,26 @@ export function ContactPage() {
     addToast('Your inquiry has been relayed to our concierge team.', 'success');
   };
 
+  const contactSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact Milprime Concierge',
+    url: 'https://milprime.shop/contact',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'Milprime',
+      url: 'https://milprime.shop',
+      email: 'concierge@milprime.shop',
+    },
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-left">
       <SEO
-        title="Contact Concierge & Studio — Milprime"
-        description="Connect with the Milprime concierge team for sizing inquiries, private appointments, or order tracking."
-        url="/contact"
+        title="Concierge & Studio Support"
+        description="Connect with the Milprime concierge team for product inquiries, sizing guidance, order tracking, and private showroom visits."
+        canonical="/contact"
+        schema={contactSchema}
       />
       
       {/* Title */}

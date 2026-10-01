@@ -1,18 +1,174 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Viewport -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <!-- Primary SEO -->
+    <title>Milprime — Premium Watches, Fashion & Modern Lifestyle</title>
+
+    <meta
+      name="description"
+      content="Discover Milprime, a modern premium store for watches, fashion, bags, accessories and lifestyle essentials. Shop thoughtfully selected products with a refined, contemporary aesthetic."
+    />
+
+    <meta
+      name="keywords"
+      content="Milprime, premium store, online store, luxury watches, premium watches, fashion, clothing, bags, leather bags, accessories, lifestyle products, modern fashion, فروشگاه میل پرایم, میل پرایم, فروشگاه آنلاین, ساعت لوکس, ساعت مچی, ساعت مردانه, ساعت زنانه, پوشاک, کیف, اکسسوری, لوازم سبک زندگی"
+    />
+
+    <meta name="author" content="Milprime" />
+
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta
+      name="googlebot"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <!-- Canonical default -->
+    <link rel="canonical" href="https://milprime.shop/" />
+
+    <!-- Language / Internationalization -->
+    <meta http-equiv="content-language" content="en" />
+
+    <!-- Theme / Browser -->
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Milprime — Modern Premium Storefront</title>
-    <meta name="description" content="Milprime curates exceptional goods crafted with intentional minimalism, timeless utility, and architectural precision." />
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="/logo.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+
+    <meta
+      property="og:title"
+      content="Milprime — Premium Watches, Fashion & Modern Lifestyle"
+    />
+
+    <meta
+      property="og:description"
+      content="Explore Milprime's curated collection of premium watches, fashion, bags, accessories and modern lifestyle essentials."
+    />
+
+    <meta property="og:url" content="https://milprime.shop/" />
+
+    <meta property="og:site_name" content="Milprime" />
+
+    <meta
+      property="og:image"
+      content="https://milprime.shop/og-image.jpg"
+    />
+
+    <meta
+      property="og:image:secure_url"
+      content="https://milprime.shop/og-image.jpg"
+    />
+
+    <meta property="og:image:type" content="image/jpeg" />
+
+    <meta property="og:image:width" content="1376" />
+
+    <meta property="og:image:height" content="768" />
+
+    <meta
+      property="og:image:alt"
+      content="Milprime premium modern lifestyle collection"
+    />
+
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Additional Persian Open Graph locale -->
+    <meta property="og:locale:alternate" content="fa_IR" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta
+      name="twitter:title"
+      content="Milprime — Premium Watches, Fashion & Modern Lifestyle"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Discover premium watches, fashion, bags, accessories and modern lifestyle essentials from Milprime."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://milprime.shop/og-image.jpg"
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content="Milprime premium modern lifestyle collection"
+    />
+
+    <!-- Search Engine / Content Signals -->
+    <meta name="rating" content="general" />
+
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- Performance / Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!--
+      NOTE:
+      Route-specific SEO is handled by react-helmet-async.
+      These values are safe site-wide defaults.
+      Product, category, blog and other public pages should override
+      title, description, canonical, Open Graph and structured data
+      dynamically.
+    -->
+
+    <!-- React/Vite application -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://milprime.shop/#website",
+        "url": "https://milprime.shop/",
+        "name": "Milprime",
+        "description": "Milprime is a modern premium store offering watches, fashion, bags, accessories and contemporary lifestyle essentials.",
+        "inLanguage": "en"
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://milprime.shop/#organization",
+        "name": "Milprime",
+        "url": "https://milprime.shop/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://milprime.shop/logo.svg"
+        }
+      }
+    </script>
   </head>
-  <body class="bg-background text-foreground antialiased selection:bg-foreground selection:text-background min-h-screen flex flex-col">
-    <div id="root" class="flex-1 flex flex-col"></div>
+
+  <body>
+    <noscript>
+      Milprime is a modern premium online store for watches, fashion, bags,
+      accessories and lifestyle essentials. Please enable JavaScript to use
+      the full website.
+    </noscript>
+
+    <div id="root"></div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

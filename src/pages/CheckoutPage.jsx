@@ -47,6 +47,8 @@ export function CheckoutPage() {
       cardLast4: cardDigits.length >= 4 ? cardDigits.slice(-4) : '••••',
     };
 
+    const orderNumber = `MIL-${Math.floor(100000 + Math.random() * 900000)}`;
+
     const orderData = {
       orderNumber,
       date: new Date().toLocaleDateString('en-US', {
@@ -72,7 +74,12 @@ export function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center space-y-4">
-        <SEO title="Checkout — Milprime" description="Complete your acquisition at Milprime." url="/checkout" />
+        <SEO
+          title="Checkout"
+          description="Complete your acquisition at Milprime."
+          canonical="/checkout"
+          noindex={true}
+        />
         <h2 className="text-2xl font-bold text-[#09090b]">Your Cart is Empty</h2>
         <p className="text-sm text-[#71717a]">
           Please add items to your cart before proceeding to checkout.
@@ -90,9 +97,10 @@ export function CheckoutPage() {
   return (
     <div className="min-h-screen bg-white text-left">
       <SEO
-        title="Secure Checkout — Milprime"
+        title="Secure Checkout"
         description="Encrypted acquisition portal for Milprime patrons. Worldwide insured transit."
-        url="/checkout"
+        canonical="/checkout"
+        noindex={true}
       />
       
       {/* Checkout Minimal Header */}

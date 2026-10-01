@@ -3,5 +3,8 @@ Allow: /
 Disallow: /admin
 Disallow: /checkout
 Disallow: /payment-success
+Disallow: /cart
+Disallow: /login
+Disallow: /register
 
 Sitemap: https://milprime.shop/sitemap.xml

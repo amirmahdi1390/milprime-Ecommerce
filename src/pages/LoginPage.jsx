@@ -53,9 +53,10 @@ export function LoginPage() {
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 text-left">
       <SEO
-        title="Sign In — Milprime"
+        title="Client Portal"
         description="Sign in to your Milprime account to access curated collections, orders, and private archives."
-        url="/login"
+        canonical="/login"
+        noindex={true}
       />
 
       <div className="w-full max-w-md space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-[#e4e4e7] shadow-sm">

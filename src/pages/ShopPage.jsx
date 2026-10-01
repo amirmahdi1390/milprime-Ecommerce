@@ -148,31 +148,83 @@ export function ShopPage() {
     (priceRange < 600 ? 1 : 0) +
     (inStockOnly ? 1 : 0);
 
-  const pageTitle = isSpecial
-    ? 'Special & Archival Products'
-    : selectedCategory && selectedCategory !== 'all'
-    ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`
-    : 'All Products';
+  const CATEGORY_META = {
+    watches: {
+      title: 'Precision Timepieces & Chronometers',
+      description: 'Explore architectural mechanical timepieces, titanium chronometers, and minimalist dials engineered with surgical restraint.',
+      heading: 'Precision Timepieces',
+      intro: 'Architectural mechanical timepieces and titanium chronometers defined by reductionist geometry and high-beat Swiss movements.',
+    },
+    bags: {
+      title: 'Full-Grain Leather Bags & Weekenders',
+      description: 'Artisanal full-grain leather carryalls, weekenders, and briefcases sourced from Santa Croce tanneries in Tuscany.',
+      heading: 'Leather Bags & Carryalls',
+      intro: 'Handcrafted from vegetable-tanned full-grain leather that matures with rich patina over decades of journey.',
+    },
+    clothing: {
+      title: 'Minimalist Apparel & Structured Overshirts',
+      description: 'Heavyweight organic cotton staples, architectural overshirts, and enduring tailored silhouettes cut with modern discipline.',
+      heading: 'Structured Apparel',
+      intro: 'Structured everyday garments cut from heavyweight organic cottons and engineered for longevity.',
+    },
+    accessories: {
+      title: 'Architectural Carry Goods & Optical Accessories',
+      description: 'Curated wallets, thermal drinkware, polarized optical frames, and precision everyday carry accessories.',
+      heading: 'Refined Accessories',
+      intro: 'Refined utilitarian carry essentials crafted from titanium, vegetable-tanned leather, and surgical steel.',
+    },
+    home: {
+      title: 'Home Objects & Tabletop Ceramics',
+      description: 'Sculptural ceramic carafes, cast concrete lamps, and botanical candles crafted for mindful spaces.',
+      heading: 'Objects & Ceramics',
+      intro: 'Tactile tabletop objects and ambient illumination created for architectural living spaces.',
+    },
+  };
+
+  const currentCategoryKey = (selectedCategory && selectedCategory !== 'all') ? selectedCategory.toLowerCase() : null;
+  const categoryInfo = currentCategoryKey ? CATEGORY_META[currentCategoryKey] : null;
+
+  let pageTitle = 'Shop All Products';
+  let pageDescription = 'Explore the complete Milprime collection of precision timepieces, full-grain leather bags, minimalist apparel, and curated accessories.';
+  let pageHeading = 'All Products';
+  let pageIntro = 'Explore our complete catalog of precision-crafted essentials.';
+  let canonicalPath = '/shop';
+
+  if (isSpecial) {
+    pageTitle = 'Special & Archival Products';
+    pageDescription = 'Limited-allocation archival releases and studio prototypes curated for discerning collectors.';
+    pageHeading = 'Special Products';
+    pageIntro = 'Curated archival specials and limited-allocation studio pieces.';
+    canonicalPath = '/shop/watches';
+  } else if (categoryInfo) {
+    pageTitle = categoryInfo.title;
+    pageDescription = categoryInfo.description;
+    pageHeading = categoryInfo.heading;
+    pageIntro = categoryInfo.intro;
+    canonicalPath = `/shop/${currentCategoryKey}`;
+  } else if (searchQuery) {
+    pageTitle = `Search: "${searchQuery}"`;
+    pageDescription = `Search results for "${searchQuery}" across the Milprime catalog.`;
+    pageHeading = `Search: ${searchQuery}`;
+    pageIntro = `Showing search results for "${searchQuery}".`;
+    canonicalPath = '/shop';
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-left">
       <SEO
-        title={`${pageTitle} — Milprime Storefront`}
-        description={`Explore the ${pageTitle.toLowerCase()} collection at Milprime. Architectural timepieces, full-grain carryalls, and minimalist apparel.`}
-        url={selectedCategory && selectedCategory !== 'all' ? `/shop/${selectedCategory}` : '/shop'}
+        title={pageTitle}
+        description={pageDescription}
+        canonical={canonicalPath}
       />
       
-      {/* Page Title & Breadcrumb Header */}
+      {/* Page Title & Category Header */}
       <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#09090b]">
-          {pageTitle}
+          {pageHeading}
         </h1>
-        <p className="mt-2 text-sm text-[#71717a]">
-          {searchQuery
-            ? `Search results for "${searchQuery}"`
-            : isSpecial
-            ? 'Curated archival specials and limited-allocation studio pieces.'
-            : 'Explore our complete catalog of precision-crafted essentials.'}
+        <p className="mt-2 text-sm text-[#71717a] max-w-2xl leading-relaxed">
+          {pageIntro}
         </p>
       </div>
 

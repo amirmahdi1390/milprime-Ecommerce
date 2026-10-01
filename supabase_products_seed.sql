@@ -34,7 +34,7 @@ VALUES
   'Milprime',
   'MIL-W001',
   'https://images.unsplash.com/photo-1524805444758-089113d48a6d',
-  '["https://images.unsplash.com/photo-1524805444758-089113d48a6d"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1524805444758-089113d48a6d']::TEXT[],
   true,
   true
 ),
@@ -50,7 +50,7 @@ VALUES
   'Milprime',
   'MIL-B001',
   'https://images.unsplash.com/photo-1553062407-98eeb64c6a62',
-  '["https://images.unsplash.com/photo-1553062407-98eeb64c6a62"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1553062407-98eeb64c6a62']::TEXT[],
   true,
   true
 ),
@@ -66,7 +66,7 @@ VALUES
   'Milprime',
   'MIL-C001',
   'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3',
-  '["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3']::TEXT[],
   false,
   true
 ),
@@ -82,7 +82,7 @@ VALUES
   'Milprime',
   'MIL-H001',
   'https://images.unsplash.com/photo-1507473885765-e6ed057f782c',
-  '["https://images.unsplash.com/photo-1507473885765-e6ed057f782c"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1507473885765-e6ed057f782c']::TEXT[],
   true,
   true
 ),
@@ -98,7 +98,7 @@ VALUES
   'Milprime',
   'MIL-A001',
   'https://images.unsplash.com/photo-1627123424574-724758594e93',
-  '["https://images.unsplash.com/photo-1627123424574-724758594e93"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1627123424574-724758594e93']::TEXT[],
   false,
   true
 ),
@@ -114,7 +114,7 @@ VALUES
   'Milprime Studio',
   'MIL-BAG-001',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_3-CcEwpnzNztUrPTdfCTDe06CKyd8o61.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_3-CcEwpnzNztUrPTdfCTDe06CKyd8o61.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_3-CcEwpnzNztUrPTdfCTDe06CKyd8o61.jpg']::TEXT[],
   true,
   true
 ),
@@ -130,7 +130,7 @@ VALUES
   'Milprime Studio',
   'MIL-BAG-002',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_0-OPBBr1ShXHAVNYJwN4k5KIcu6mMEG3.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_0-OPBBr1ShXHAVNYJwN4k5KIcu6mMEG3.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_imag_of_a_yellow_bag_for_ecommerce_website_0-OPBBr1ShXHAVNYJwN4k5KIcu6mMEG3.jpg']::TEXT[],
   true,
   true
 ),
@@ -146,7 +146,7 @@ VALUES
   'Atelier Milprime',
   'MIL-BAG-003',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bag_for_ecommerce_website_1%20%281%29-BHMR9OOrV50zy2Wg0XeiKWDIKdVTNB.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bag_for_ecommerce_website_1%20%281%29-BHMR9OOrV50zy2Wg0XeiKWDIKdVTNB.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bag_for_ecommerce_website_1%20%281%29-BHMR9OOrV50zy2Wg0XeiKWDIKdVTNB.jpg']::TEXT[],
   true,
   true
 ),
@@ -162,7 +162,7 @@ VALUES
   'Milprime Essentials',
   'MIL-CLO-001',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_1-R3UTsUqqrEpZSAKXsUYe9IRDvqqZfs.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_1-R3UTsUqqrEpZSAKXsUYe9IRDvqqZfs.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_hoodie_for_ecommerce_website_1-R3UTsUqqrEpZSAKXsUYe9IRDvqqZfs.jpg']::TEXT[],
   true,
   true
 ),
@@ -178,7 +178,7 @@ VALUES
   'Milprime Essentials',
   'MIL-CLO-002',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%281%29-JHMZe8xJ28tll9bGQINl0AXFfYByFc.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%281%29-JHMZe8xJ28tll9bGQINl0AXFfYByFc.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_tshirt_for_ecommerce_website_minim_3%20%281%29-JHMZe8xJ28tll9bGQINl0AXFfYByFc.jpg']::TEXT[],
   false,
   true
 ),
@@ -194,7 +194,7 @@ VALUES
   'Milprime Horology',
   'MIL-WAT-001',
   'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80',
-  '["https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1000&q=80']::TEXT[],
   true,
   true
 ),
@@ -210,7 +210,7 @@ VALUES
   'Milprime Horology',
   'MIL-WAT-002',
   'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1000&q=80',
-  '["https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1000&q=80"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1000&q=80']::TEXT[],
   false,
   true
 ),
@@ -226,7 +226,7 @@ VALUES
   'Milprime Studio',
   'MIL-ACC-001',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bottle_for_ecommerce_website_minim_2-GOjCmiuwEPPLwzFxtjnHCNSJ7Zy5Ut.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bottle_for_ecommerce_website_minim_2-GOjCmiuwEPPLwzFxtjnHCNSJ7Zy5Ut.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Default_product_image_of_a_bottle_for_ecommerce_website_minim_2-GOjCmiuwEPPLwzFxtjnHCNSJ7Zy5Ut.jpg']::TEXT[],
   true,
   true
 ),
@@ -242,7 +242,7 @@ VALUES
   'Milprime Optics',
   'MIL-ACC-002',
   'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1000&q=80',
-  '["https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1000&q=80"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1000&q=80']::TEXT[],
   false,
   true
 ),
@@ -258,7 +258,7 @@ VALUES
   'Milprime Living',
   'MIL-HOM-001',
   'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=1000&q=80',
-  '["https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=1000&q=80"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=1000&q=80']::TEXT[],
   false,
   true
 ),
@@ -274,7 +274,7 @@ VALUES
   'Milprime Living',
   'MIL-HOM-002',
   'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1000&q=80',
-  '["https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1000&q=80"]'::jsonb,
+  ARRAY['https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1000&q=80']::TEXT[],
   false,
   true
 ),
@@ -290,7 +290,7 @@ VALUES
   'Milprime Editions',
   'MIL-ACC-003',
   'https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Leonardo_Phoenix_product_image_of_a_book_cover_for_an_PDF_for_1-4XHf0tvsC3ySb4h5UYQRRM5gAOFVN0.jpg',
-  '["https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Leonardo_Phoenix_product_image_of_a_book_cover_for_an_PDF_for_1-4XHf0tvsC3ySb4h5UYQRRM5gAOFVN0.jpg"]'::jsonb,
+  ARRAY['https://fpvnqhp6jqce9ax6.public.blob.vercel-storage.com/images/0196b1e1-bdf7-72bb-b729-1135a2543d54/test/Leonardo_Phoenix_product_image_of_a_book_cover_for_an_PDF_for_1-4XHf0tvsC3ySb4h5UYQRRM5gAOFVN0.jpg']::TEXT[],
   true,
   true
 )

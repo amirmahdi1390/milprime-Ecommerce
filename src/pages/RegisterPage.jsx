@@ -54,9 +54,10 @@ export function RegisterPage() {
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 text-left">
       <SEO
-        title="Create Account — Milprime"
+        title="Create Account"
         description="Establish your Milprime account for priority ordering, archival access, and bespoke curation."
-        url="/register"
+        canonical="/register"
+        noindex={true}
       />
 
       <div className="w-full max-w-md space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-[#e4e4e7] shadow-sm">

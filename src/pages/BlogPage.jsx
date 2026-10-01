@@ -8,9 +8,9 @@ export function BlogPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-left">
       <SEO
-        title="Journal & Editorial — Milprime"
+        title="Journal & Perspectives"
         description="Essays on horology, artisanal leathercraft, minimalist product architecture, and thoughtful living."
-        url="/blog"
+        canonical="/blog"
       />
 
       {/* Editorial Header */}

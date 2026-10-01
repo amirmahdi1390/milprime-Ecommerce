@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+QA_PLAN.md
+supabase_products_seed.sql
+supabase_schema.sql
+supabase_storage_setup.sql
+
 
 # Editor directories and files
 .vscode/*

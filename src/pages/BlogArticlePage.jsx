@@ -23,14 +23,16 @@ export function BlogArticlePage() {
     }
   };
 
+  const isoDate = new Date(post.date).toISOString();
+
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
-    image: post.image,
-    datePublished: '2026-02-24T08:00:00+00:00',
-    dateModified: '2026-03-12T10:00:00+00:00',
+    image: [post.image],
+    datePublished: isoDate,
+    dateModified: isoDate,
     author: {
       '@type': 'Person',
       name: post.author,
@@ -41,7 +43,7 @@ export function BlogArticlePage() {
       name: 'Milprime',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://milprime.shop/favicon.ico',
+        url: 'https://milprime.shop/og-image.jpg',
       },
     },
     mainEntityOfPage: {
@@ -50,15 +52,40 @@ export function BlogArticlePage() {
     },
   };
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://milprime.shop/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Journal',
+        item: 'https://milprime.shop/blog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: `https://milprime.shop/blog/${post.slug}`,
+      },
+    ],
+  };
+
   return (
     <article className="min-h-screen bg-white text-left py-10 sm:py-16">
       <SEO
-        title={`${post.title} — Milprime Journal`}
+        title={post.title}
         description={post.excerpt}
         image={post.image}
-        url={`/blog/${post.slug}`}
+        canonical={`/blog/${post.slug}`}
         type="article"
-        schema={articleSchema}
+        schema={[articleSchema, breadcrumbSchema]}
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -33,9 +33,10 @@ export function CartPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <SEO
-          title="Shopping Bag — Milprime"
+          title="Shopping Bag"
           description="Review your Milprime selections before checkout."
-          url="/cart"
+          canonical="/cart"
+          noindex={true}
         />
         <div className="max-w-md mx-auto space-y-4">
           <div className="h-16 w-16 mx-auto rounded-full bg-[#f4f4f5] flex items-center justify-center text-[#71717a]">
@@ -60,9 +61,10 @@ export function CartPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-left">
       <SEO
-        title="Shopping Bag — Milprime"
+        title="Shopping Bag"
         description="Review your curated selections, calculate shipping, and proceed to secure checkout."
-        url="/cart"
+        canonical="/cart"
+        noindex={true}
       />
 
       <div className="flex items-center justify-between pb-6 border-b border-[#e4e4e7] mb-8">

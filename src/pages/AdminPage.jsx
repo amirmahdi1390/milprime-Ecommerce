@@ -115,7 +115,7 @@ export function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 text-left">
-        <SEO title="Studio Administration — Milprime" url="/admin" noindex={true} />
+        <SEO title="Studio Administration" canonical="/admin" noindex={true} />
         
         <div className="w-full max-w-md space-y-6 bg-white p-8 sm:p-10 rounded-2xl border border-[#e4e4e7] shadow-sm">
           <div className="text-center space-y-2">
@@ -172,7 +172,7 @@ export function AdminPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 text-left">
-      <SEO title="Admin Catalog Studio — Milprime" url="/admin" noindex={true} />
+      <SEO title="Admin Catalog Studio" canonical="/admin" noindex={true} />
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-[#e4e4e7] mb-8">

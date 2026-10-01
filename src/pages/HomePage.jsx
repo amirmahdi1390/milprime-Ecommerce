@@ -74,26 +74,40 @@ export function HomePage() {
           (p) => (p.category || '').toLowerCase() === activeCategory.toLowerCase()
         );
 
-  const homeSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Milprime',
-    url: 'https://milprime.shop',
-    description:
-      'Milprime curates exceptional leather carryalls, precision timepieces, and apparel defined by architectural discipline.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://milprime.shop/shop?q={search_term_string}',
-      'query-input': 'required name=search_term_string',
+  const homeSchema = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Milprime',
+      url: 'https://milprime.shop',
+      description:
+        'Milprime curates exceptional leather carryalls, precision timepieces, and apparel defined by architectural discipline.',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: 'https://milprime.shop/shop?q={search_term_string}',
+        },
+        'query-input': 'required name=search_term_string',
+      },
     },
-  };
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Milprime',
+      url: 'https://milprime.shop',
+      logo: 'https://milprime.shop/og-image.jpg',
+      description:
+        'Milprime curates exceptional leather carryalls, precision timepieces, and apparel defined by architectural discipline.',
+    },
+  ];
 
   return (
     <div className="space-y-16 sm:space-y-24 pb-20 text-left overflow-x-hidden">
       <SEO
-        title="Milprime — Engineered With Restraint | Curated Modern Goods"
+        title="Engineered With Restraint | Curated Modern Goods"
         description="Exceptional leather carryalls, precision timepieces, and apparel defined by architectural discipline. Discover the permanent collection."
-        url="/"
+        canonical="/"
         schema={homeSchema}
       />
 

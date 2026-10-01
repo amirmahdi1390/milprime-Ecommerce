@@ -4,6 +4,7 @@ import { CheckCircle2, Package, Calendar, ArrowRight, ShieldCheck, Download } fr
 import { useCartStore } from '../store/cartStore';
 import { formatCurrency } from '../utils/currency';
 import { Button } from '../components/common/Button';
+import { SEO } from '../components/common/SEO';
 
 export function PaymentSuccessPage() {
   const clearCart = useCartStore((state) => state.clearCart);
@@ -32,6 +33,12 @@ export function PaymentSuccessPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
+      <SEO
+        title="Order Confirmation"
+        description="Your Milprime acquisition order receipt and transit confirmation."
+        canonical="/payment-success"
+        noindex={true}
+      />
       
       {/* Success Badge & Headline */}
       <div className="space-y-4">

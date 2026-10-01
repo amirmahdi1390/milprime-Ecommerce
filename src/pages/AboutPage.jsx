@@ -10,19 +10,20 @@ export function AboutPage() {
     '@type': 'AboutPage',
     name: 'About Milprime',
     description: 'The story, philosophy, craftsmanship, and materials behind the Milprime studio.',
-    publisher: {
+    mainEntity: {
       '@type': 'Organization',
       name: 'Milprime',
       url: 'https://milprime.shop',
+      logo: 'https://milprime.shop/og-image.jpg',
     },
   };
 
   return (
     <div className="space-y-16 sm:space-y-24 pb-20 text-left">
       <SEO
-        title="About Our Studio & Philosophy — Milprime"
-        description="Discover the story, architectural philosophy, material standards, and artisanal craftsmanship behind Milprime."
-        url="/about"
+        title="Our Philosophy & Studio Craft"
+        description="Discover the architectural philosophy, material standards, and artisanal craftsmanship behind Milprime."
+        canonical="/about"
         schema={aboutSchema}
       />
 

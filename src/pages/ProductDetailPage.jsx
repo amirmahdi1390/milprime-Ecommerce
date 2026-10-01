@@ -134,13 +134,17 @@ export function ProductDetailPage() {
     }, 1500);
   };
 
+  const images = Array.isArray(product.images) && product.images.length > 0 
+    ? product.images 
+    : [product.image_url];
+
   const productSchema = {
-    '@context': 'https://schema.org/',
+    '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: product.image_url,
+    image: images,
     description: product.short_description || product.description,
-    sku: product.sku || `MIL-${product.slug}`,
+    sku: product.sku || product.slug,
     brand: {
       '@type': 'Brand',
       name: product.brand || 'Milprime',
@@ -151,12 +155,45 @@ export function ProductDetailPage() {
       priceCurrency: 'USD',
       price: finalPrice,
       availability: product.active !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: 'Milprime',
+      },
     },
   };
 
-  const images = Array.isArray(product.images) && product.images.length > 0 
-    ? product.images 
-    : [product.image_url];
+  const categorySlug = product.category ? product.category.toLowerCase().trim() : 'all';
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://milprime.shop/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Shop',
+        item: 'https://milprime.shop/shop',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.category || 'Category',
+        item: `https://milprime.shop/shop/${categorySlug}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: product.name,
+        item: `https://milprime.shop/product/${product.slug}`,
+      },
+    ],
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-left">
@@ -165,7 +202,7 @@ export function ProductDetailPage() {
         description={product.short_description || product.description}
         canonical={`/product/${product.slug}`}
         image={product.image_url}
-        schema={productSchema}
+        schema={[productSchema, breadcrumbSchema]}
       />
 
       {/* Breadcrumbs */}
